@@ -22,6 +22,9 @@ spec:
     global:
       istiod:
         enableAnalysis: true
+      tracer:
+        zipkin:
+          address: zipkin.istio-system:9411
 EOF
 
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s
@@ -37,6 +40,8 @@ kubectl apply -f istio/samples/bookinfo/platform/kube/bookinfo.yaml
 kubectl wait -n istio-demo deployment --all --for=condition=available --timeout=180s
 
 kubectl apply -f istio/samples/bookinfo/networking/bookinfo-gateway.yaml
+
+kubectl apply -f istio/samples/bookinfo/networking/destination-rule-all-mtls.yaml 
 
 
 
