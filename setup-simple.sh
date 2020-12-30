@@ -47,8 +47,8 @@ sleep 2
 kubectl apply -f istio/samples/addons 
 kubectl rollout status deployment/kiali -n istio-system
 
-kubectl apply -f istio/samples/addons/extras/zipkin.yaml
-kubectl rollout status deployment/zipkin -n istio-system
+#kubectl apply -f istio/samples/addons/extras/zipkin.yaml
+#kubectl rollout status deployment/zipkin -n istio-system
 
 # Get and print the ingress info
 INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
