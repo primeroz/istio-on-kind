@@ -18,6 +18,8 @@ spec:
   values:
     pilot:
       env:
+        PILOT_ENABLE_EDS_FOR_HEADLESS_SERVICES: false
+        PILOT_ENABLE_HEADLESS_SERVICE_POD_LISTENERS: true
         PILOT_ENABLE_STATUS: true 
     global:
       istiod:
