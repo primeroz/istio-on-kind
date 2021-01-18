@@ -14,7 +14,7 @@ metadata:
   namespace: istio-system
   name: example-istiocontrolplane
 spec:
-  profile: demo
+  profile: default
   values:
     pilot:
       env:
