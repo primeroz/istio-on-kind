@@ -50,6 +50,7 @@ kubectl apply -f istio/samples/bookinfo/networking/destination-rule-all-mtls.yam
 # Observability Stack
 
 kubectl apply -f istio/samples/addons 
+kubectl apply -f prometheus-configmap.yml
 sleep 2
 kubectl apply -f istio/samples/addons 
 kubectl rollout status deployment/kiali -n istio-system
