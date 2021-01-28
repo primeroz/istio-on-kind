@@ -32,10 +32,10 @@ kubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml
 # Observability Stack
 
 kubectl apply -f istio-addons 
-kubectl apply -f istio-addons/extras/prometheus-configmap.yml
 sleep 2
 kubectl apply -f istio-addons 
 kubectl rollout status deployment/kiali -n istio-system
+kubectl apply -f istio-addons/extras/prometheus-configmap.yml
 
 #kubectl apply -f istio/samples/addons/extras/zipkin.yaml
 #kubectl rollout status deployment/zipkin -n istio-system
