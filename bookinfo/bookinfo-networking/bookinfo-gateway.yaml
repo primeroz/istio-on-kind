@@ -4,7 +4,8 @@ metadata:
   name: bookinfo-gateway
 spec:
   selector:
-    istio: ingressgateway # use istio default controller
+    app: istio-ingressgateway
+    istio: ingressgateway-public
   servers:
   - port:
       number: 80

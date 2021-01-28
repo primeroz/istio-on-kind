@@ -1,10 +1,10 @@
+---
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 metadata:
+  name: standard
   namespace: istio-system
-  name: example-istiocontrolplane
 spec:
-  profile: default
   addonComponents:
     grafana:
       enabled: false
@@ -12,8 +12,58 @@ spec:
       enabled: false
     prometheus:
       enabled: false
+  components:
+    egressGateways:
+    - enabled: true
+      k8s:
+        hpaSpec:
+          minReplicas: 1
+      label:
+        app: istio-egressgateway
+        istio: egressgateway-public
+      name: public-egress
+      namespace: istio-system
+    ingressGateways:
+    - enabled: true
+      k8s:
+        hpaSpec:
+          maxReplicas: 2
+          minReplicas: 1
+        service:
+          ports:
+          - name: http
+            port: 80
+          - name: https
+            port: 443
+      label:
+        app: istio-ingressgateway
+        istio: ingressgateway-public
+      name: public-ingress
+      namespace: istio-system
+    pilot:
+      enabled: true
+      k8s:
+        hpaSpec:
+          maxReplicas: 2
+          minReplicas: 1
+  meshConfig:
+    accessLogFile: /dev/stdout
+    connectTimeout: 5s
+    defaultConfig:
+      sds:
+        enabled: true
+      tracing:
+        zipkin:
+          address: zipkin.istio-system:9411
+    enableTracing: false
+    ingressClass: istio
+    trustDomain: cluster.local
+  profile: default
   values:
     global:
       tracer:
         zipkin:
           address: zipkin.istio-system:9411
+      proxy:
+        clusterDomain: cluster.local
+      trustDomain: cluster.local
