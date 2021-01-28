@@ -26,10 +26,10 @@ spec:
           ports:
           - name: http
             port: 80
-            targetport: 8080
+            targetPort: 8080
           - name: https
             port: 443
-            targetport: 8443
+            targetPort: 8443
       label:
         app: istio-ingressgateway
         istio: ingressgateway-public
