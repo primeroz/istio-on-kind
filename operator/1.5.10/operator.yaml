@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
-  name: istio-operator-1.5.10
+  name: istio-operator
 rules:
 # istio groups
 - apiGroups:
@@ -25,6 +25,12 @@ rules:
   - '*'
 - apiGroups:
   - networking.istio.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - rbac.istio.io
   resources:
   - '*'
   verbs:
@@ -75,7 +81,6 @@ rules:
   verbs:
   - get
   - create
-  - update
 - apiGroups:
   - policy
   resources:
@@ -99,7 +104,6 @@ rules:
   - events
   - namespaces
   - pods
-  - pods/proxy
   - persistentvolumeclaims
   - secrets
   - services
@@ -110,106 +114,16 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: istio-operator-1.5.10
+  name: istio-operator
 subjects:
 - kind: ServiceAccount
-  name: istio-operator-1.5.10
+  name: istio-operator
   namespace: istio-operator
 roleRef:
   kind: ClusterRole
-  name: istio-operator-1.5.10
+  name: istio-operator
   apiGroup: rbac.authorization.k8s.io
 ---
-
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  namespace: istio-operator
-  name: istio-operator-1.5.10
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: istio-operator
-  template:
-    metadata:
-      labels:
-        name: istio-operator
-    spec:
-      serviceAccountName: istio-operator-1.5.10
-      containers:
-        - name: istio-operator
-          image: docker.io/istio/operator:1.8.2
-          command:
-          - operator
-          - server
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
-            runAsGroup: 1337
-            runAsUser: 1337
-            runAsNonRoot: true
-          imagePullPolicy: IfNotPresent
-          resources:
-            limits:
-              cpu: 200m
-              memory: 256Mi
-            requests:
-              cpu: 50m
-              memory: 128Mi
-          env:
-            - name: WATCH_NAMESPACE
-              value: 
-            - name: LEADER_ELECTION_NAMESPACE
-              value: "istio-operator"
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: OPERATOR_NAME
-              value: "istio-operator"
-            - name: WAIT_FOR_RESOURCES_TIMEOUT
-              value: "300s"
-            - name: REVISION
-              value: "1.5.10"
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: istio-operator
-  labels:
-    istio-operator-managed: Reconcile
-    istio-injection: disabled
----
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: istio-operator
-  labels:
-    name: istio-operator
-  name: istio-operator-1.5.10
-spec:
-  ports:
-  - name: http-metrics
-    port: 8383
-    targetPort: 8383
-    protocol: TCP
-  selector:
-    name: istio-operator
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  namespace: istio-operator
-  name: istio-operator-1.5.10
----
-# SYNC WITH manifests/charts/base/files
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -247,7 +161,7 @@ spec:
         status:
           description: 'Status describes each of istio control plane component status at the current time.
             0 means NONE, 1 means UPDATING, 2 means HEALTHY, 3 means ERROR, 4 means RECONCILING.
-            More info: https://github.com/istio/api/blob/master/operator/v1alpha1/istio.operator.v1alpha1.pb.html &
+            More info: https://github.com/istio/operator/blob/master/pkg/apis/istio/v1alpha2/v1alpha2.pb.html &
             https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status'
           type: object
   versions:
@@ -255,3 +169,73 @@ spec:
     served: true
     storage: true
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: istio-operator
+  name: istio-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: istio-operator
+  template:
+    metadata:
+      labels:
+        name: istio-operator
+    spec:
+      serviceAccountName: istio-operator
+      containers:
+        - name: istio-operator
+          image: docker.io/istio/operator:1.5.10
+          command:
+          - operator
+          - server
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          env:
+            - name: WATCH_NAMESPACE
+              value: istio-system
+            - name: LEADER_ELECTION_NAMESPACE
+              value: istio-operator
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: istio-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-operator
+  labels:
+    istio-operator-managed: Reconcile
+    istio-injection: disabled
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: istio-operator
+  labels:
+    name: istio-operator
+  name: istio-operator
+spec:
+  ports:
+  - name: http-metrics
+    port: 8383
+    targetPort: 8383
+  selector:
+    name: istio-operator
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: istio-operator
+  name: istio-operator
