@@ -1,0 +1,26 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  namespace: istio-system
+  name: example-istiocontrolplane
+spec:
+  profile: default
+  addonComponents:
+    grafana:
+      enabled: false
+    kiali:
+      enabled: false
+    prometheus:
+      enabled: false
+  values:
+    pilot:
+      env:
+        PILOT_ENABLE_EDS_FOR_HEADLESS_SERVICES: false
+        PILOT_ENABLE_HEADLESS_SERVICE_POD_LISTENERS: true
+        PILOT_ENABLE_STATUS: true 
+    global:
+      istiod:
+        enableAnalysis: true
+      tracer:
+        zipkin:
+          address: zipkin.istio-system:9411
