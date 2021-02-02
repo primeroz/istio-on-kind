@@ -400,15 +400,14 @@ spec:
     spec:
       serviceAccountName: kiali
       containers:
-      - image: "quay.io/kiali/kiali:v1.26"
+      #- image: "quay.io/kiali/kiali:v1.26"
+      - image: "quay.io/jotak/kiali:dev"
         imagePullPolicy: Always
         name: kiali
         command:
         - "/opt/kiali/kiali"
         - "-config"
         - "/kiali-configuration/config.yaml"
-        - "-v"
-        - "3"
         ports:
         - name: api-port
           containerPort: 20001
@@ -429,6 +428,8 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 30
         env:
+        - name: LOG_LEVEL
+          value: trace
         - name: ACTIVE_NAMESPACE
           valueFrom:
             fieldRef:

@@ -31,6 +31,7 @@ kubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml
 
 # Observability Stack
 
+kubectl create ns istio-system
 kubectl apply -f istio-addons 
 sleep 2
 kubectl apply -f istio-addons 
