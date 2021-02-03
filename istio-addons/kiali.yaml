@@ -400,8 +400,8 @@ spec:
     spec:
       serviceAccountName: kiali
       containers:
-      #- image: "quay.io/kiali/kiali:v1.26"
-      - image: "quay.io/jotak/kiali:dev"
+      #- image: "quay.io/kiali/kiali:v1.29"
+      - image: "quay.io/jotak/kiali@sha256:b1291dafe75d83c9f75702dd176f57ca661c3d699607f762d66b613c92245907"
         imagePullPolicy: Always
         name: kiali
         command:
