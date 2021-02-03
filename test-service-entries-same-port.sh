@@ -1,6 +1,7 @@
 docker run --rm -d --network=kind --name=netcat1 subfuzion/netcat -vkl 8888
 docker run --rm -d --network=kind --name=netcat2 subfuzion/netcat -vkl 8888
 
+kubectl ns istio-demo
 kubectl run netcat --image=subfuzion/netcat --command -- sleep 3600
 
 cat <<EOF | kubectl apply -f -
