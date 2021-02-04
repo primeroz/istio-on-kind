@@ -1,0 +1,48 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend-http
+  namespace: dev
+spec:
+  hosts:
+  - frontend
+  http:
+  - route:
+    - destination:
+        host: frontend
+        port: 
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-http
+  namespace: dev
+spec:
+  hosts:
+  - backend
+  http:
+  - route:
+    - destination:
+        host: backend
+        port:
+          number: 9898
+      weight: 100
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-grpc
+  namespace: dev
+spec:
+  hosts:
+  - backend
+  http:
+  - route:
+    - destination:
+        host: backend
+        port:
+          number: 9999
+      weight: 100
