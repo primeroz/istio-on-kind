@@ -27,9 +27,16 @@ spec:
   - route:
     - destination:
         host: backend
+        subset: v1
         port:
           number: 9898
-      weight: 100
+      weight: 50
+    - destination:
+        host: backend
+        subset: v2
+        port:
+          number: 9898
+      weight: 50
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -43,6 +50,66 @@ spec:
   - route:
     - destination:
         host: backend
+        subset: v1
         port:
           number: 9999
-      weight: 100
+      weight: 80
+    - destination:
+        host: backend
+        subset: v2
+        port:
+          number: 9999
+      weight: 20
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: backend
+  namespace: dev
+spec:
+  host: backend
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+    trafficPolicy:
+      portLevelSettings:
+      - port:
+          number: 9898
+        connectionPool:
+          tcp:
+            maxConnections: 100
+            connectTimeout: 30ms
+            tcpKeepalive:
+              time: 7200s
+              interval: 75s
+        outlierDetection:
+          consecutiveErrors: 2
+          interval: 5m
+          baseEjectionTime: 15m
+      - port:
+          number: 9999
+        loadBalancer:
+          simple: ROUND_ROBIN
+        outlierDetection:
+          consecutiveErrors: 7
+          interval: 5m
+          baseEjectionTime: 15m
+  - name: v2
+    labels:
+      version: v2
+    trafficPolicy:
+      portLevelSettings:
+      - port:
+          number: 9999
+        connectionPool:
+          tcp:
+            maxConnections: 10
+            connectTimeout: 200ms
+          http:
+            idleTimeout: 120s
+        loadBalancer:
+          simple: ROUND_ROBIN

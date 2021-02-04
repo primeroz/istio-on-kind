@@ -86,7 +86,8 @@ metadata:
   labels:
     env: dev
     instance: webapp
-  name: backend
+    version: v1
+  name: backend-v1
   namespace: dev
 spec:
   minReadySeconds: 3
@@ -95,6 +96,7 @@ spec:
   selector:
     matchLabels:
       app: backend
+      version: v1
   strategy:
     rollingUpdate:
       maxUnavailable: 0
@@ -106,6 +108,89 @@ spec:
         prometheus.io/scrape: "true"
       labels:
         app: backend
+        version: v1
+    spec:
+      containers:
+      - command:
+        - ./podinfo
+        - --port=9898
+        - --port-metrics=9797
+        - --grpc-port=9999
+        - --grpc-service-name=backend
+        - --level=info
+        - --cache-server=cache:6379
+        env:
+        - name: PODINFO_UI_COLOR
+          value: '#34577c'
+        image: ghcr.io/stefanprodan/podinfo:5.1.4
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - podcli
+            - check
+            - http
+            - localhost:9898/healthz
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        name: backend
+        ports:
+        - containerPort: 9898
+          name: http
+          protocol: TCP
+        - containerPort: 9797
+          name: http-metrics
+          protocol: TCP
+        - containerPort: 9999
+          name: grpc
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - podcli
+            - check
+            - http
+            - localhost:9898/readyz
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 32Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    env: dev
+    instance: webapp
+    version: v2
+  name: backend-v2
+  namespace: dev
+spec:
+  minReadySeconds: 3
+  progressDeadlineSeconds: 60
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: backend
+      version: v2
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "9797"
+        prometheus.io/scrape: "true"
+      labels:
+        app: backend
+        version: v2
     spec:
       containers:
       - command:
@@ -303,7 +388,7 @@ metadata:
   labels:
     env: dev
     instance: webapp
-  name: backend
+  name: backend-v1
   namespace: dev
 spec:
   maxReplicas: 2
@@ -318,7 +403,30 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: backend
+    name: backend-v1
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    env: dev
+    instance: webapp
+  name: backend-v2
+  namespace: dev
+spec:
+  maxReplicas: 2
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 99
+        type: Utilization
+    type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend-v2
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
