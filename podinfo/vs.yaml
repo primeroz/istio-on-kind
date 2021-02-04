@@ -18,13 +18,15 @@ spec:
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: backend-http
+  name: backend
   namespace: dev
 spec:
   hosts:
   - backend
   http:
-  - route:
+  - match:
+    - port: 9898
+    route:
     - destination:
         host: backend
         subset: v1
@@ -37,17 +39,9 @@ spec:
         port:
           number: 9898
       weight: 50
----
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: backend-grpc
-  namespace: dev
-spec:
-  hosts:
-  - backend
-  http:
-  - route:
+  - match:
+    - port: 9999
+    route:
     - destination:
         host: backend
         subset: v1
