@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: etcd-client
+    app: etcd
+  name: etcd-client
+  namespace: etcd
+spec:
+  ports:
+  - name: grpc-client
+    port: 2379
+    protocol: TCP
+    targetPort: 2379
+  selector:
+    k8s-app: etcd
+    app: etcd
+  sessionAffinity: None
+  type: NodePort
