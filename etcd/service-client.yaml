@@ -8,7 +8,7 @@ metadata:
   namespace: etcd
 spec:
   ports:
-  - name: grpc-client
+  - name: client
     port: 2379
     protocol: TCP
     targetPort: 2379

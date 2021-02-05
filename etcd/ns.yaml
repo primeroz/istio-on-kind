@@ -3,5 +3,5 @@ kind: Namespace
 metadata:
   labels:
     env: etcd
-    istio-injection: disabled
+    istio-injection: enabled
   name: etcd

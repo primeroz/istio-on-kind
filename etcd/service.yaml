@@ -9,11 +9,11 @@ metadata:
 spec:
   clusterIP: None
   ports:
-  - name: grpc-client
+  - name: client
     port: 2379
     protocol: TCP
     targetPort: 2379
-  - name: grpc-peer
+  - name: peer
     port: 2380
     protocol: TCP
     targetPort: 2380
