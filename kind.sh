@@ -10,6 +10,10 @@ set -o errexit
 
 [ "$TRACE" ] && set -x
 
+VERBOSE=1
+[ "$TRACE" ] && VERBOSE=3
+
+
 KIND_K8S_IMAGE=${KIND_K8S_IMAGE:-"kindest/node:v1.16.15@sha256:c10a63a5bda231c0a379bf91aebf8ad3c79146daca59db816fb963f731852a99"}
 KIND_CLUSTER_NAME=${KIND_CLUSTER_NAME:-"istio"}
 KIND_DOCKER_REGISTRY_NAME=${KIND_DOCKER_REGISTRY_NAME:-"kind-docker-registry"}
@@ -23,6 +27,12 @@ KIND_API_SERVER_ADDRESS=${KIND_API_SERVER_ADDRESS:-"0.0.0.0"}
 KIND_API_SERVER_PORT=${KIND_API_SERVER_PORT:-6443}
 KIND_INSTALL_DOCKER_REGISTRY=${KIND_INSTALL_DOCKER_REGISTRY:-0}
 KIND_INSTALL_NGINX_INGRESS=${KIND_INSTALL_DOCKER_REGISTRY:-0}
+
+if [[ "x${ENV}" != "x" ]]; then
+source ./env-${ENV}.sh
+else
+source ./env-default.sh
+fi
 
 docker_registry_start() {
   running="$(docker inspect -f '{{.State.Running}}' "${KIND_DOCKER_REGISTRY_NAME}" 2>/dev/null || true)"
@@ -39,8 +49,7 @@ docker_registry_start() {
 ## Create a cluster with the local registry enabled in container
 create() {
 
-
-cat <<EOF | kind create cluster --name="${KIND_CLUSTER_NAME}" --image="${KIND_K8S_IMAGE}" --wait="${KIND_WAIT}" --config=-
+cat <<EOF | kind create -v ${VERBOSE}  cluster --name="${KIND_CLUSTER_NAME}" --image="${KIND_K8S_IMAGE}" --wait="${KIND_WAIT}" --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
@@ -59,6 +68,10 @@ nodes:
     nodeRegistration:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
+  - |
+    kind: ClusterConfiguration
+    networking:
+      dnsDomain: ${CLUSTER_DNS_DOMAIN}
   extraPortMappings:
   - containerPort: 80
     hostPort: 80

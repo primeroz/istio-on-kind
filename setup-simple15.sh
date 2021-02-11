@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ "x${ENV}" != "x" ]]; then
+source ./env-${ENV}.sh
+else
+source ./env-default.sh
+fi
+
+
 kubectl create ns istio-operator
 kubectl apply -f operator/1.5.10/operator.yaml
 sleep 10
@@ -8,7 +15,7 @@ kubectl wait -n istio-operator deployment --all --for=condition=available --time
 # Create control plane 
 kubectl create ns istio-system
 kubectl ns istio-system
-kubectl apply -f operator/1.5.10/crd.yaml
+CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.5.10/crd.yaml | kubectl apply -f -
 
 sleep 30
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s

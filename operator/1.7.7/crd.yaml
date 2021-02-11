@@ -62,7 +62,7 @@ spec:
           address: zipkin.istio-system:9411
     enableTracing: false
     ingressClass: istio
-    trustDomain: cluster.local
+    trustDomain: ${CLUSTER_DNS_DOMAIN}
   profile: default
   values:
     pilot:
@@ -77,5 +77,5 @@ spec:
         zipkin:
           address: zipkin.istio-system:9411
       proxy:
-        clusterDomain: cluster.local
-      trustDomain: cluster.local
+        clusterDomain: ${CLUSTER_DNS_DOMAIN}
+      trustDomain: ${CLUSTER_DNS_DOMAIN}

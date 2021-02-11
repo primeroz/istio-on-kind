@@ -2,26 +2,29 @@
 ## Test Upgrade
 
 ```
-./kind.sh create
-./setup-simple15.sh
+ENV=default ./kind.sh create
+ENV=default ./setup-simple15.sh
 
 istioctl proxy-status
 
-kubectl apply -f operator/1.6.14
-# wait
-kubectl rollout restart -n istio-demo deployment
+ENV=default ./upgrade16.sh
 # wait
 istioctl proxy-status
+# if needed restart all deployments in other namespaces
+k
+ENV=default ./upgrade17.sh
+# wait
+istioctl proxy-status
+# if needed restart all deployments in other namespaces
+kubectl rollout restart -n namespace WORKLOAD_TYPE
 
-kubectl apply -f operator/1.7.6
-# wait
-kubectl rollout restart -n istio-demo deployment
-# wait
-istioctl proxy-status
+ubectl rollout restart -n namespace WORKLOAD_TYPE
 
-kubectl apply -f operator/1.8.2
-# wait
-kubectl rollout restart -n istio-demo deployment
+ENV=default ./upgrade18.sh
 # wait
 istioctl proxy-status
+# if needed restart all deployments in other namespaces
+kubectl rollout restart -n namespace WORKLOAD_TYPE
+
+
 ```
