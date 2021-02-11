@@ -1,1 +1,1 @@
-CLUSTER_DNS_DOMAIN="cluster1.a.example.net"
+CLUSTER_DNS_DOMAIN="cluster1.local"
