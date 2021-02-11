@@ -9,6 +9,9 @@ ENV=customdns ./setup-simple.sh
 kubectl apply -f podinfo/podinfo.yaml
 kubectl wait -n dev deployment --all --for=condition=available --timeout=180s
 
+# Verify IstioOperator resource and domain settings
+kubectl get -n istio-system istiooperator standard -o yaml
+
 # WAIT
 istioctl version
 istioctl proxy-status
