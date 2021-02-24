@@ -15,8 +15,8 @@ spec:
           minAvailable: 1
           selector:
             matchLabels:
-              app: istio-ingressgateway
-              istio: ingressgateway-public
+              app: istio-egressgateway
+              istio: egressgateway-public
       label:
         app: istio-egressgateway
         istio: egressgateway-public
