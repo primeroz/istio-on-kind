@@ -21,8 +21,6 @@ kubectl wait -n istio-system deployment --all --for=condition=available --timeou
 sleep 5
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s || exit 1
 
-exit 0
-
 #  Demo App
 
 kubectl create ns istio-demo

@@ -7,14 +7,14 @@ source ./env-default.sh
 fi
 
 kubectl create ns istio-operator
-kubectl apply -f operator/1.7.7/operator.yaml
+kubectl apply -f operator/1.6.14/operator.yaml
 sleep 10
 kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
 
 # Create control plane 
 kubectl create ns istio-system
 kubectl ns istio-system
-CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.7.7/crd.yaml | kubectl apply -f -
+CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.6.14/crd.yaml | kubectl apply -f -
 
 sleep 30
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s
