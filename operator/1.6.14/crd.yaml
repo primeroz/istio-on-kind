@@ -18,6 +18,12 @@ spec:
       k8s:
         hpaSpec:
           minReplicas: 1
+        podDisruptionBudget:
+          minAvailable: 0
+          selector:
+            matchLabels:
+              app: istio-egressgateway
+              istio: egressgateway-public
       label:
         app: istio-egressgateway
         istio: egressgateway-public
@@ -39,6 +45,12 @@ spec:
                   matchLabels:
                     app: istio-ingressgateway
                     istio: ingressgateway-public
+        podDisruptionBudget:
+          minAvailable: 0
+          selector:
+            matchLabels:
+              app: istio-ingressgateway
+              istio: ingressgateway-public
         service:
           ports:
           - name: http
