@@ -61,7 +61,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: frontend-opa
+  name: frontend-opa-00
   namespace: dev
 spec:
   selector:
@@ -74,6 +74,23 @@ spec:
   - to:
     - operation:
         paths: ["/*"]
+#---
+#apiVersion: security.istio.io/v1beta1
+#kind: AuthorizationPolicy
+#metadata:
+#  name: frontend-opa-01
+#  namespace: dev
+#spec:
+#  selector:
+#    matchLabels:
+#      app: frontend
+#  action: CUSTOM
+#  provider:
+#    name: "opa.dev"
+#  rules:
+#  - to:
+#    - operation:
+#        paths: ["/*"]
 #---
 #apiVersion: security.istio.io/v1beta1
 #kind: AuthorizationPolicy
