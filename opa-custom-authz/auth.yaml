@@ -1,0 +1,93 @@
+#apiVersion: "security.istio.io/v1beta1"
+#kind: "AuthorizationPolicy"
+#metadata:
+#  name: "frontend-ingress"
+#  namespace: dev
+#spec:
+#  selector:
+#    matchLabels:
+#      app: frontend
+#  action: DENY
+#  rules:
+#  - from:
+#    - source:
+#        notRequestPrincipals: ["*"]
+#---
+#apiVersion: "security.istio.io/v1beta1"
+#kind: "AuthorizationPolicy"
+#metadata:
+#  name: "backend-ingress"
+#  namespace: dev
+#spec:
+#  selector:
+#    matchLabels:
+#      app: backend
+#  action: DENY
+#  rules:
+#  - from:
+#    - source:
+#        notRequestPrincipals: ["*"]
+#---
+#apiVersion: "security.istio.io/v1beta1"
+#kind: "RequestAuthentication"
+#metadata:
+#  name: "jwt-frontend"
+#  namespace: dev
+#spec:
+#  selector:
+#    matchLabels:
+#      app: frontend
+#  jwtRules:
+#  - issuer: "testing@secure.istio.io"
+#    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.9/security/tools/jwt/samples/jwks.json"
+#    fromHeaders:
+#      - name: "Authorization"
+#        prefix: "Bearer "
+#      - name: "x-my-token"
+#---
+#apiVersion: "security.istio.io/v1beta1"
+#kind: "RequestAuthentication"
+#metadata:
+#  name: "jwt-backend"
+#  namespace: dev
+#spec:
+#  selector:
+#    matchLabels:
+#      app: backend
+#  jwtRules:
+#  - issuer: "testing@secure.istio.io"
+#    jwksUri: "https://raw.githubusercontent.com/istio/istio/release-1.9/security/tools/jwt/samples/jwks.json"
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend-opa
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  action: CUSTOM
+  provider:
+    name: "opa.dev"
+  rules:
+  - to:
+    - operation:
+        paths: ["/*"]
+#---
+#apiVersion: security.istio.io/v1beta1
+#kind: AuthorizationPolicy
+#metadata:
+#  name: backend-opa
+#  namespace: dev
+#spec:
+#  selector:
+#    matchLabels:
+#      app: backend
+#  action: CUSTOM
+#  provider:
+#    name: "opa.dev"
+#  rules:
+#  - to:
+#    - operation:
+#        paths: ["/*"]
