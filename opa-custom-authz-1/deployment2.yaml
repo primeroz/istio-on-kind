@@ -150,11 +150,10 @@ spec:
         version: v1
     spec:
       containers:
-        - image: docker.io/kennethreitz/httpbin
-          imagePullPolicy: IfNotPresent
-          name: httpbin
-          ports:
-          - containerPort: 80
+      - name: foo-app
+        image: hashicorp/http-echo:0.2.3
+        args:
+        - "-text=httpbin1"
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -177,11 +176,10 @@ spec:
         version: v2
     spec:
       containers:
-        - image: docker.io/kennethreitz/httpbin
-          imagePullPolicy: IfNotPresent
-          name: httpbin
-          ports:
-          - containerPort: 80
+      - name: foo-app
+        image: hashicorp/http-echo:0.2.3
+        args:
+        - "-text=httpbin2"
 ---
 apiVersion: v1
 kind: Service
@@ -209,11 +207,10 @@ metadata:
     app: opa-httpbin2
     service: opa-httpbin2
 spec:
-  type: NodePort
   ports:
   - name: http
     port: 8000
-    targetPort: 80
+    targetPort: 5678
   selector:
     app: opa-httpbin2
 ---
@@ -231,7 +228,7 @@ spec:
   rules:
   - to:
     - operation:
-        notPaths: ["/ip"]
+        paths: ["/*"]
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService

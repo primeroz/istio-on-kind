@@ -44,14 +44,16 @@ ENDPOINT="http://$HOST:$PORT"
 
 kubectl apply -f deployment2.yaml
 
+#403
+curl -v $ENDPOINT/
 
 # Always hit v1
 TOKEN=$(python3 gen-jwt.py key.pem --expire 600)
-curl -v --header "Authorization: Bearer $TOKEN" $ENDPOINT/headers
+curl --header "Authorization: Bearer $TOKEN" $ENDPOINT/
 
 # Always hit v2
 TOKEN=$(python3 gen-jwt.py key.pem --expire 600 --role "version2")
-curl -v --header "Authorization: Bearer $TOKEN" $ENDPOINT/headers
+curl --header "Authorization: Bearer $TOKEN" $ENDPOINT/
 
 
 
