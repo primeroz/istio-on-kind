@@ -35,6 +35,24 @@ done
 ```
 
 ```
-CLAIM BASED ROUTING
+CLAIM BASED ROUTING ... this should really use the ingress gateway :)
+
+
+HOST=$(kubectl get node istio-control-plane -o json | jq '.status.addresses[0].address' -r)
+PORT=$(kubectl -n opa get service lb-httpbin2 -o json | jq -r '.spec.ports[0].nodePort' )
+ENDPOINT="http://$HOST:$PORT"
+
+kubectl apply -f deployment2.yaml
+
+
+# Always hit v1
+TOKEN=$(python3 gen-jwt.py key.pem --expire 600)
+curl -v --header "Authorization: Bearer $TOKEN" $ENDPOINT/headers
+
+# Always hit v2
+TOKEN=$(python3 gen-jwt.py key.pem --expire 600 --role "version2")
+curl -v --header "Authorization: Bearer $TOKEN" $ENDPOINT/headers
+
+
 
 ```

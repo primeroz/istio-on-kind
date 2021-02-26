@@ -116,7 +116,7 @@ if __name__ == '__main__':
                         default="testing@secure.istio.io",
                         help="iss claim. Default is `testing@secure.istio.io`")
     parser.add_argument("-role", "--role",
-                        default="user",
+                        default="default",
                         help="Role")
     parser.add_argument("-aud", "--aud",
                         help="aud claim. This is comma-separated-list of audiences")

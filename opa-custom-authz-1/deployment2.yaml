@@ -1,0 +1,271 @@
+---
+apiVersion: v1
+data:
+  policy.rego: |
+    package envoy.authz
+
+    import input.attributes.request.http as http_request
+
+    default allow = {
+      "allowed": false,
+      "headers": {
+        "x-ext-auth-allow": "no"
+      },
+      "body": "Unauthorized Request",
+      "http_status": 403
+    }
+
+    token = {"valid": valid, "payload": payload} {
+        [_, encoded] := split(http_request.headers.authorization, " ")
+        # Test grabbing jwks - how does the cache work?
+        # https://github.com/open-policy-agent/opa/issues/1753
+        # First request fail,  does it need to download it and fail ? 
+        jwks_request := http.send({"cache": true, "method": "GET", "url": "https://raw.githubusercontent.com/istio/istio/release-1.9/security/tools/jwt/samples/jwks.json"})
+        valid := io.jwt.verify_rs256(encoded, jwks_request.raw_body)
+        [_, payload, _] := io.jwt.decode(encoded)
+    }
+
+    allow = response {
+        is_token_valid
+        action_allowed
+        response := {
+          "allowed": true,
+          "headers": {
+            "x-ext-auth-allow": "yes",
+            "x-ext-auth-role": token.payload.role,
+            "x-auth-request-user": token.payload.sub,
+            "x-auth-request-email": token.payload.sub,
+            "x-ext-auth-version": routeVersion
+          }
+        }
+    }
+
+    routeVersion = "v2" { 
+      token.payload.role == "version2"
+    } else = "v1" { true } 
+
+    is_token_valid {
+      token.valid
+      token.payload["iss"] == "testing@secure.istio.io"
+      now := time.now_ns() / 1000000000
+      token.payload.nbf <= now
+      now - 30 < token.payload.exp
+    }
+
+    action_allowed {
+      startswith(http_request.path, base64url.decode(token.payload.path))
+    }
+
+kind: ConfigMap
+metadata:
+  name: lb-httpbin2
+  namespace: opa
+  labels:
+    app: lb-httpbin2
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: lb-httpbin2
+  namespace: opa
+  labels:
+    app: lb-httpbin2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lb-httpbin2
+  template:
+    metadata:
+      labels:
+        app: lb-httpbin2
+    spec:
+      containers:
+        - image: docker.io/pottava/proxy:latest
+          imagePullPolicy: IfNotPresent
+          name: lb
+          ports:
+          - containerPort: 80
+          env:
+          - name: "PROXY_URL"
+            value: "http://opa-httpbin2:8000"
+        - name: opa
+          image: openpolicyagent/opa:latest-envoy
+          securityContext:
+            runAsUser: 1111
+          volumeMounts:
+          - readOnly: true
+            mountPath: /policy
+            name: opa-policy
+          args:
+          - "run"
+          - "--server"
+          - "--addr=localhost:8181"
+          - "--diagnostic-addr=0.0.0.0:8282"
+          - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+          - "--set=plugins.envoy_ext_authz_grpc.query=data.envoy.authz.allow"
+          - "--set=decision_logs.console=true"
+          - "--ignore=.*"
+          - "/policy/policy.rego"
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        #- name: proxy-config
+          #configMap:
+            #name: proxy-config
+        - name: opa-policy
+          configMap:
+            name: lb-httpbin2
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: opa-httpbin2-v1
+  namespace: opa
+  labels:
+    app: opa-httpbin2
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa-httpbin2
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: opa-httpbin2
+        version: v1
+    spec:
+      containers:
+        - image: docker.io/kennethreitz/httpbin
+          imagePullPolicy: IfNotPresent
+          name: httpbin
+          ports:
+          - containerPort: 80
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: opa-httpbin2-v2
+  namespace: opa
+  labels:
+    app: opa-httpbin2
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa-httpbin2
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: opa-httpbin2
+        version: v2
+    spec:
+      containers:
+        - image: docker.io/kennethreitz/httpbin
+          imagePullPolicy: IfNotPresent
+          name: httpbin
+          ports:
+          - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lb-httpbin2
+  namespace: opa
+  labels:
+    app: lb-httpbin2
+    service: lb-httpbin2
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 80
+  selector:
+    app: lb-httpbin2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa-httpbin2
+  namespace: opa
+  labels:
+    app: opa-httpbin2
+    service: opa-httpbin2
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 80
+  selector:
+    app: opa-httpbin2
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: opa-httpbin2
+spec:
+  selector:
+    matchLabels:
+      app: lb-httpbin2
+  action: CUSTOM
+  provider:
+    name: "opa.local"
+  rules:
+  - to:
+    - operation:
+        notPaths: ["/ip"]
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: opa-httbin2
+  namespace: opa
+spec:
+  hosts:
+  - opa-httpbin2
+  http:
+  - match:
+    - headers:
+        x-ext-auth-version:
+          exact: v2
+    route:
+    - destination:
+        host: opa-httpbin2
+        subset: v2
+  - route:
+    - destination:
+        host: opa-httpbin2
+        subset: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: opa-httpbin2
+  namespace: opa
+spec:
+  host: opa-httpbin2
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
