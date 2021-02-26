@@ -14,24 +14,27 @@ ENDPOINT="http://$HOST:$PORT"
 
 ```
 # 403
-curl -v $ENDPOINT
+curl -v $ENDPOINT/headers
 
 # 200
 curl -v $ENDPOINT/ip
 
-# 403
-curl -v $ENDPOINT
+TOKEN=$(python3 gen-jwt.py key.pem --expire 10 --path /)
+curl -v --header "Authorization: Bearer $TOKEN" $ENDPOINT/headers 
 
-```
-
-
-
-```
 TOKEN=$(python3 gen-jwt.py key.pem --expire 10 --path / --role SuperSayan)
+curl -v --header "Authorization: Bearer $TOKEN" $ENDPOINT/headers 
 
+# 30 s gracetime on token
+TOKEN=$(python3 gen-jwt.py key.pem --expire 10 --path /)
 while true
 do
-date; curl --header "Authorization: Bearer $TOKEN" http://172.18.0.3:32618/headers -s -o /dev/null -w "%{http_code}\n"
+date; curl --header "Authorization: Bearer $TOKEN" $ENDPOINT -s -o /dev/null -w "%{http_code}\n"
 sleep 1
 done
+```
+
+```
+CLAIM BASED ROUTING
+
 ```
