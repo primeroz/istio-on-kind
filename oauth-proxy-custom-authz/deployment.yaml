@@ -113,3 +113,24 @@ spec:
   - route:
     - destination:
         host: frontend
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: podinfo
+  #namespace: dev
+  # Does it need to be in the ingrassgateway namespace?
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: istio-ingressgateway
+  action: CUSTOM
+  provider:
+    name: "oauth2-proxy"
+  rules:
+    - to:
+      - operation:
+          hosts:
+          - "podinfo.127.0.0.1.nip.io"
+          
