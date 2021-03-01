@@ -6,8 +6,8 @@ else
 source ./env-default.sh
 fi
 
-kubectl apply -f operator/1.7.7/operator.yaml
-CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.7.7/crd.yaml | kubectl apply -f -
+kubectl apply -f operator/1.7.8/operator.yaml
+CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.7.8/crd.yaml | kubectl apply -f -
 kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
 sleep 60
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s
