@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dex
+  labels:
+    istio-injection: enabled
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: auth
+  namespace: dex
+spec:
+  selector:
+    istio: ingressgateway-public
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "oauth2-proxy.127.0.0.1.nip.io"
+    - "dex.127.0.0.1.nip.io"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: apps
+  namespace: dev
+spec:
+  selector:
+    istio: ingressgateway-public
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "podinfo.127.0.0.1.nip.io"
+---
+## Define the service entry for the local OPA service on port 9191.
+#apiVersion: networking.istio.io/v1alpha3
+#kind: ServiceEntry
+#metadata:
+#  name: local-opa-grpc
+#  namespace: opa
+#spec:
+#  hosts:
+#  - "local-opa-grpc.local"
+#  endpoints:
+#  - address: "127.0.0.1"
+#  ports:
+#  - name: grpc
+#    number: 9191
+#    protocol: GRPC
+#  resolution: STATIC
+---
+## Define the service entry for the local OPA service on port 9191.
+#apiVersion: networking.istio.io/v1alpha3
+#kind: ServiceEntry
+#metadata:
+#  name: local-opa-grpc
+#  namespace: opa
+#spec:
+#  hosts:
+#  - "local-opa-grpc.local"
+#  endpoints:
+#  - address: "127.0.0.1"
+#  ports:
+#  - name: grpc
+#    number: 9191
+#    protocol: GRPC
+#  resolution: STATIC
