@@ -35,7 +35,8 @@ data:
             "x-ext-auth-role": token.payload.role,
             "x-auth-request-user": token.payload.sub,
             "x-auth-request-email": token.payload.sub,
-            "x-ext-auth-version": routeVersion
+            "x-ext-auth-version": "v2"
+            #"x-ext-auth-version": routeVersion
           }
         }
     }
@@ -58,37 +59,181 @@ data:
 
 kind: ConfigMap
 metadata:
-  name: lb-httpbin2
+  name: ingress-httpbin2
   namespace: opa
   labels:
-    app: lb-httpbin2
+    app: ingress-httpbin2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+  namespace: opa
+  labels:
+    app: opa
+spec:
+  ports:
+  - name: grpc
+    port: 9191
+    targetPort: 9191
+  selector:
+    app: opa
 ---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: lb-httpbin2
+  name: opa
   namespace: opa
   labels:
-    app: lb-httpbin2
+    app: opa
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: lb-httpbin2
+      app: opa
   template:
     metadata:
       labels:
-        app: lb-httpbin2
+        app: opa
     spec:
       containers:
-        - image: docker.io/pottava/proxy:latest
+        - name: opa
+          image: openpolicyagent/opa:latest-envoy
+          securityContext:
+            runAsUser: 1111
+          volumeMounts:
+          - readOnly: true
+            mountPath: /policy
+            name: opa-policy
+          args:
+          - "run"
+          - "--server"
+          - "--addr=localhost:8181"
+          - "--diagnostic-addr=0.0.0.0:8282"
+          - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+          - "--set=plugins.envoy_ext_authz_grpc.query=data.envoy.authz.allow"
+          - "--set=decision_logs.console=true"
+          - "--ignore=.*"
+          - "/policy/policy.rego"
+          ports:
+          - containerPort: 9191
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTP
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: opa-policy
+          configMap:
+            name: ingress-httpbin2
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: opa-httpbin2
+  namespace: opa
+spec:
+  selector:
+    istio: ingressgateway-public
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "opa-httpbin2.172.18.0.2.nip.io"
+    - "opa-httpbin1.172.18.0.2.nip.io"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: opa-httpbin2
+  namespace: opa
+spec:
+  hosts:
+  - "opa-httpbin2.172.18.0.2.nip.io"
+  gateways:
+  - opa-httpbin2
+  http:
+  - match:
+    - headers:
+        x-ext-auth-version:
+          exact: v2
+    route:
+    - destination:
+        host: opa-httpbin2
+        subset: v2
+  - route:
+    - destination:
+        host: opa-httpbin2
+        subset: v1
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ingress-httpbin2
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway-public
+  action: CUSTOM
+  provider:
+    name: "opa.public-ingress"
+  rules:
+  - to:
+    - operation:
+        hosts:
+          - "opa-httpbin2.172.18.0.2.nip.io"
+          - "opa-httpbin2.172.18.0.2.nip.io:*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: opa-httpbin1
+  namespace: opa
+spec:
+  hosts:
+  - "opa-httpbin1.172.18.0.2.nip.io"
+  gateways:
+  - opa-httpbin2
+  http:
+  - route:
+    - destination:
+        host: opa-httpbin1
+####
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: opa-httpbin1
+  namespace: opa
+  labels:
+    app: opa-httpbin1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: opa-httpbin1
+  template:
+    metadata:
+      labels:
+        app: opa-httpbin1
+    spec:
+      containers:
+        - image: docker.io/kennethreitz/httpbin
           imagePullPolicy: IfNotPresent
-          name: lb
+          name: httpbin
           ports:
           - containerPort: 80
-          env:
-          - name: "PROXY_URL"
-            value: "http://opa-httpbin2:8000"
         - name: opa
           image: openpolicyagent/opa:latest-envoy
           securityContext:
@@ -127,151 +272,37 @@ spec:
             #name: proxy-config
         - name: opa-policy
           configMap:
-            name: lb-httpbin2
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: opa-httpbin2
-  namespace: opa
----
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: opa-httpbin2-v1
-  namespace: opa
-  labels:
-    app: opa-httpbin2
-    version: v1
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: opa-httpbin2
-      version: v1
-  template:
-    metadata:
-      labels:
-        app: opa-httpbin2
-        version: v1
-    spec:
-      serviceAccountName: opa-httpbin2
-      containers:
-      - name: foo-app
-        image: hashicorp/http-echo:0.2.3
-        args:
-        - "-text=httpbin1"
----
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: opa-httpbin2-v2
-  namespace: opa
-  labels:
-    app: opa-httpbin2
-    version: v2
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: opa-httpbin2
-      version: v2
-  template:
-    metadata:
-      labels:
-        app: opa-httpbin2
-        version: v2
-    spec:
-      serviceAccountName: opa-httpbin2
-      containers:
-      - name: foo-app
-        image: hashicorp/http-echo:0.2.3
-        args:
-        - "-text=httpbin2"
+            name: opa-httpbin1
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: lb-httpbin2
+  name: opa-httpbin1
   namespace: opa
   labels:
-    app: lb-httpbin2
-    service: lb-httpbin2
+    app: opa-httpbin1
+    service: opa-httpbin1
 spec:
   type: NodePort
   ports:
   - name: http
-    port: 8080
+    port: 8000
     targetPort: 80
   selector:
-    app: lb-httpbin2
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: opa-httpbin2
-  namespace: opa
-  labels:
-    app: opa-httpbin2
-    service: opa-httpbin2
-spec:
-  ports:
-  - name: http
-    port: 8000
-    targetPort: 5678
-  selector:
-    app: opa-httpbin2
+    app: opa-httpbin1
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: opa-httpbin2
-  namespace: opa
+  name: opa-httpbin1
 spec:
   selector:
     matchLabels:
-      app: lb-httpbin2
+      app: opa-httpbin1
   action: CUSTOM
   provider:
     name: "opa.local"
   rules:
   - to:
     - operation:
-        paths: ["/*"]
----
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: opa-httpbin2-local
-  namespace: opa
-spec:
-  hosts:
-  - opa-httpbin2
-  http:
-  - match:
-    - headers:
-        x-ext-auth-version:
-          exact: v2
-    route:
-    - destination:
-        host: opa-httpbin2
-        subset: v2
-  - route:
-    - destination:
-        host: opa-httpbin2
-        subset: v1
----
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: opa-httpbin2
-  namespace: opa
-spec:
-  host: opa-httpbin2
-  subsets:
-  - name: v1
-    labels:
-      version: v1
-  - name: v2
-    labels:
-      version: v2
+        notPaths: ["/ip"]
