@@ -2,7 +2,7 @@
 
 
 kubectl create ns istio-operator
-kubectl apply -f ../operator/1.9.0/operator.yaml
+kubectl apply -f ../operator/1.9.1/operator.yaml
 sleep 10
 kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
 
