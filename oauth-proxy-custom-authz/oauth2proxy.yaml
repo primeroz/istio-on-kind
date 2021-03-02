@@ -137,7 +137,7 @@ spec:
           - --reverse-proxy
           - --whitelist-domain=".example.com"
           - --cookie-domain=".example.com"
-          - --cookie-name=cookie
+          - --cookie-name=_oauth2_proxy
           #- --cookie-samesite=lax
           #- --scope="openid groups profile email"
           - --provider=oidc
