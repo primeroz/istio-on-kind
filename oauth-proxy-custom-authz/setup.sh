@@ -16,19 +16,24 @@ kubectl wait -n istio-system deployment --all --for=condition=available --timeou
 sleep 5
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s || exit 1
 
-#  Demo App
+kubectl apply -f common.yaml
+kubectl apply -f dex.yaml
+kubectl apply -f oauth2proxy.yaml
+kubectl wait -n dex deployment --all --for=condition=available --timeout=180s || exit 1
+kubectl apply -f deployment.yaml
+kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || exit 1
 
-#kubectl create ns istio-demo
-#kubectl label namespace istio-demo istio-injection=enabled
-#kubectl ns istio-demo
-#kubectl apply -f bookinfo/bookinfo-kube/bookinfo.yaml
-#kubectl wait -n istio-demo deployment --all --for=condition=available --timeout=180s
-#
-#kubectl apply -f bookinfo/bookinfo-networking/bookinfo-gateway.yaml
-#
-#kubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml 
-#
-#
+# Test
+echo "Testing DEX"
+curl http://dex.127.0.0.1.nip.io/healthz -s -o /dev/null -w "%{http_code}\n"
+curl http://dex.127.0.0.1.nip.io/healthz -s -o /dev/null -w "%{http_code}\n"
+curl http://dex.127.0.0.1.nip.io/healthz -s -o /dev/null -w "%{http_code}\n"
+echo "Testing OAUTH2 PROXY"
+curl http://oauth2-proxy.127.0.0.1.nip.io/ping  -s -o /dev/null -w "%{http_code}\n"
+curl http://oauth2-proxy.127.0.0.1.nip.io/ping  -s -o /dev/null -w "%{http_code}\n"
+curl http://oauth2-proxy.127.0.0.1.nip.io/ping  -s -o /dev/null -w "%{http_code}\n"
+
+
 #
 ## Observability Stack
 #

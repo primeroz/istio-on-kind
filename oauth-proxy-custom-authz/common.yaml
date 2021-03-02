@@ -6,6 +6,13 @@ metadata:
   labels:
     istio-injection: enabled
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels:
+    istio-injection: enabled
+---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:

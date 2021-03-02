@@ -1,102 +1,98 @@
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: oauth2-proxy-config
-  namespace: dex
-data:
-  proxy-config.cfg: |
-    ## OAuth2 Proxy Config File
-    ## https://github.com/oauth2-proxy/oauth2-proxy
-    ## <addr>:<port> to listen on for HTTP/HTTPS clients
-    http_address = "http://:4180"
-    # https_address = ":443"
-    ## Are we running behind a reverse proxy? Will not accept headers like X-Real-Ip unless this is set.
-    reverse_proxy = true
-    ## TLS Settings
-    # tls_cert_file = ""
-    # tls_key_file = ""
-    ## the OAuth Redirect URL.
-    # defaults to the "https://" + requested host header + "/oauth2/callback"
-    #redirect_url = "https://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback"
-    ## the http url(s) of the upstream endpoint. If multiple, routing is based on path
-    # upstreams = [
-    # "http://pg-operator.personal.codemagnifique.com/"
-    # ]
-    ## Logging configuration
-    #logging_filename = ""
-    #logging_max_size = 100
-    #logging_max_age = 7
-    #logging_local_time = true
-    #logging_compress = false
-    #standard_logging = true
-    #standard_logging_format = {% raw %}"[{{.Timestamp}}] [{{.File}}] {{.Message}}"{% endraw %}
-    #request_logging = true
-    #request_logging_format = {% raw %}"{{.Client}} - {{.Username}} [{{.Timestamp}}] {{.Host}} {{.RequestMethod}} {{.Upstream}} {{.RequestURI}} {{.Protocol}} {{.UserAgent}} {{.StatusCode}} {{.ResponseSize}} {{.RequestDuration}}"{% endraw %}
-    #auth_logging = true
-    #auth_logging_format = {% raw %}"{{.Client}} - {{.Username}} [{{.Timestamp}}] [{{.Status}}] {{.Message}}"{% endraw %}
-    ## pass HTTP Basic Auth, X-Forwarded-User and X-Forwarded-Email information to upstream
-    # pass_basic_auth = true
-    # pass_user_headers = true
-    ## pass the request Host Header to upstream
-    ## when disabled the upstream Host is used as the Host Header
-    # pass_host_header = true
-    ## Email Domains to allow authentication for (this authorizes any email on this domain)
-    ## for more granular authorization use `authenticated_emails_file`
-    ## To authorize any email addresses use "*"
-    email_domains = [
-       "*"
-    ]
-    ## The OAuth Client ID, Secret
-    # client_id = "123456.apps.googleusercontent.com"
-    # client_secret = ""
-    ## Pass OAuth Access token to upstream via "X-Forwarded-Access-Token"
-    # pass_access_token = false
-    ## Authenticated Email Addresses File (one email per line)
-    #authenticated_emails_file = "/app/config/proxy-users.cfg"
-    ## Htpasswd File (optional)
-    ## Additionally authenticate against a htpasswd file. Entries must be created with "htpasswd -s" for SHA encryption
-    ## enabling exposes a username/login signin form
-    # htpasswd_file = ""
-    ## Templates
-    ## optional directory with custom sign_in.html and error.html
-    # custom_templates_dir = ""
-    ## skip SSL checking for HTTPS requests
-    # ssl_insecure_skip_verify = false
-    ## Select oauth provider
-    provider = "oidc"
-    ## Cookie Settings
-    ## Name     - the cookie name
-    ## Secret   - the seed string for secure cookies; should be 16, 24, or 32 bytes
-    ##            for use with an AES cipher when cookie_refresh or pass_access_token
-    ##            is set
-    ## Domain   - (optional) cookie domain to force cookies to (ie: .yourcompany.com)
-    ## Expire   - (duration) expire timeframe for cookie
-    ## Refresh  - (duration) refresh the cookie when duration has elapsed after cookie was initially set.
-    ##            Should be less than cookie_expire; set to 0 to disable.
-    ##            On refresh, OAuth token is re-validated.
-    ##            (ie: 1h means tokens are refreshed on request 1hr+ after it was set)
-    ## Secure   - secure cookies are only sent by the browser of a HTTPS connection (recommended)
-    ## HttpOnly - httponly cookies are not readable by javascript (recommended)
-    cookie_secret="OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w="
-    oidc_issuer_url="http://dex.127.0.0.1.nip.io"
-    client_secret="b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK"
-    client_id="oauth2-proxy"
-    cookie_secure="false"
-    redirect_url = "http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback"
-    set_authorization_header = "true"
-    pass_authorization_header = "true"
-    pass_host_header = "false"
-    # https://discuss.istio.io/t/external-authorization-with-oauth-proxy2-get-404/9737/4
-    cookie_name = "_oauth2_proxy_istio"
-    #skip-provider-button = "true"
-    #pass-access-token = "true"
-    #silence-ping-logging = "true"
-    #whitelist-domain = .example.com
-    #set-xauthrequest = "true"
-    #reverse-proxy = "true"
-
-
+#---
+#apiVersion: v1
+#kind: ConfigMap
+#metadata:
+#  name: oauth2-proxy-config
+#  namespace: dex
+#data:
+#  proxy-config.cfg: |
+#    ## OAuth2 Proxy Config File
+#    ## https://github.com/oauth2-proxy/oauth2-proxy
+#    ## <addr>:<port> to listen on for HTTP/HTTPS clients
+#    http_address = "http://:4180"
+#    # https_address = ":443"
+#    ## TLS Settings
+#    # tls_cert_file = ""
+#    # tls_key_file = ""
+#    ## the OAuth Redirect URL.
+#    # defaults to the "https://" + requested host header + "/oauth2/callback"
+#    #redirect_url = "https://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback"
+#    ## the http url(s) of the upstream endpoint. If multiple, routing is based on path
+#    # upstreams = [
+#    # "http://pg-operator.personal.codemagnifique.com/"
+#    # ]
+#    ## Logging configuration
+#    #logging_filename = ""
+#    #logging_max_size = 100
+#    #logging_max_age = 7
+#    #logging_local_time = true
+#    #logging_compress = false
+#    #standard_logging = true
+#    #standard_logging_format = {% raw %}"[{{.Timestamp}}] [{{.File}}] {{.Message}}"{% endraw %}
+#    #request_logging = true
+#    #request_logging_format = {% raw %}"{{.Client}} - {{.Username}} [{{.Timestamp}}] {{.Host}} {{.RequestMethod}} {{.Upstream}} {{.RequestURI}} {{.Protocol}} {{.UserAgent}} {{.StatusCode}} {{.ResponseSize}} {{.RequestDuration}}"{% endraw %}
+#    #auth_logging = true
+#    #auth_logging_format = {% raw %}"{{.Client}} - {{.Username}} [{{.Timestamp}}] [{{.Status}}] {{.Message}}"{% endraw %}
+#    ## pass HTTP Basic Auth, X-Forwarded-User and X-Forwarded-Email information to upstream
+#    # pass_basic_auth = true
+#    # pass_user_headers = true
+#    ## pass the request Host Header to upstream
+#    ## when disabled the upstream Host is used as the Host Header
+#    # pass_host_header = true
+#    ## Email Domains to allow authentication for (this authorizes any email on this domain)
+#    ## for more granular authorization use `authenticated_emails_file`
+#    ## To authorize any email addresses use "*"
+#    email_domains = [
+#       "*"
+#    ]
+#    ## The OAuth Client ID, Secret
+#    # client_id = "123456.apps.googleusercontent.com"
+#    # client_secret = ""
+#    ## Pass OAuth Access token to upstream via "X-Forwarded-Access-Token"
+#    # pass_access_token = false
+#    ## Authenticated Email Addresses File (one email per line)
+#    #authenticated_emails_file = "/app/config/proxy-users.cfg"
+#    ## Htpasswd File (optional)
+#    ## Additionally authenticate against a htpasswd file. Entries must be created with "htpasswd -s" for SHA encryption
+#    ## enabling exposes a username/login signin form
+#    # htpasswd_file = ""
+#    ## Templates
+#    ## optional directory with custom sign_in.html and error.html
+#    # custom_templates_dir = ""
+#    ## skip SSL checking for HTTPS requests
+#    # ssl_insecure_skip_verify = false
+#    ## Select oauth provider
+#    provider = "oidc"
+#    ## Cookie Settings
+#    ## Name     - the cookie name
+#    ## Secret   - the seed string for secure cookies; should be 16, 24, or 32 bytes
+#    ##            for use with an AES cipher when cookie_refresh or pass_access_token
+#    ##            is set
+#    ## Domain   - (optional) cookie domain to force cookies to (ie: .yourcompany.com)
+#    ## Expire   - (duration) expire timeframe for cookie
+#    ## Refresh  - (duration) refresh the cookie when duration has elapsed after cookie was initially set.
+#    ##            Should be less than cookie_expire; set to 0 to disable.
+#    ##            On refresh, OAuth token is re-validated.
+#    ##            (ie: 1h means tokens are refreshed on request 1hr+ after it was set)
+#    ## Secure   - secure cookies are only sent by the browser of a HTTPS connection (recommended)
+#    ## HttpOnly - httponly cookies are not readable by javascript (recommended)
+#    cookie_secret="OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w="
+#    oidc_issuer_url="http://dex.127.0.0.1.nip.io"
+#    client_secret="b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK"
+#    client_id="oauth2-proxy"
+#    cookie_secure="false"
+#    cookie_samesite="lax"
+#    redirect_url = "http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback"
+#    #pass_authorization_header = "true"
+#    #pass_host_header = "false"
+#    # https://discuss.istio.io/t/external-authorization-with-oauth-proxy2-get-404/9737/4
+#    #cookie_name = "_oauth2_proxy"
+#    skip_provider_button = "true"
+#    pass_access_token = "true"
+#    #silence-ping-logging = "true"
+#    set_xauthrequest = "true"
+#    set_authorization_header = "true"
+#    reverse_proxy = "true"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -124,37 +120,51 @@ spec:
           - name: oauth2-proxy
             containerPort: 4180
         args:
-          - "--config=/app/config/proxy-config.cfg"
+          #- "--config=/app/config/proxy-config.cfg"
           #- "--cookie-domain=.personal.codemagnifique.com"
-          #- "--whitelist-domain=.personal.codemagnifique.com"
-          - "--upstream=file:///dev/null"
-        #env:
-        #- name: OAUTH2_PROXY_COOKIE_SECRET
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: oauth2-proxy-secrets
-        #      key: cookie-secret
-        #- name: OAUTH2_PROXY_CLIENT_ID
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: oauth2-proxy-secrets
-        #      key: client-id
-        #- name: OAUTH2_PROXY_CLIENT_SECRET
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: oauth2-proxy-secrets
-        #      key: client-secret
-        volumeMounts:
-          - name: configs
-            mountPath: /app/config/proxy-config.cfg
-            subPath: proxy-config.cfg
-      volumes:
-      - name: configs
-        configMap:
-          name: oauth2-proxy-config
-          items:
-            - key: proxy-config.cfg
-              path: proxy-config.cfg
+          #- "--upstream=file:///dev/null"
+          - --http-address=0.0.0.0:4180
+          - --email-domain="example.com"
+          - --cookie-refresh=1h
+          - --cookie-secure=false # Set to false for test environment only
+          - --set-xauthrequest=true # X-Auth-Request-User, X-Auth-Request-Email, X-Auth-Request-Preferred-Username, X-Auth-Request-Groups
+          - --pass-access-token=true # X-Auth-Request-Access-Token, must first enable --set-xauthrequest
+          - --set-authorization-header=true # Authorization: Bearer <JWT>
+          - --pass-authorization-header=true # pass OIDC IDToken to upstream via Authorization Bearer header
+          - --pass-host-header=true # pass the request Host Header to upstream
+          - --pass-access-token=true # pass OAuth access_token to upstream via X-Forwarded-Access-Token header. When used with --set-xauthrequest this adds the X-Auth-Request-Access-Token header to the response
+          - --upstream=static://200
+          - --reverse-proxy
+          - --whitelist-domain=".example.com"
+          - --cookie-domain=".example.com"
+          - --cookie-name=cookie
+          #- --cookie-samesite=lax
+          #- --scope="openid groups profile email"
+          - --provider=oidc
+          - --oidc-issuer-url=http://dex.127.0.0.1.nip.io
+          - --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
+          # https://github.com/oauth2-proxy/oauth2-proxy/issues/350 ??
+          #- --validate-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
+          #- --redeem-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
+          - --skip-provider-button=true
+        env:
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          value: "eTh1TmFXRjc1TVVYejZBOVFXZFlYQT09"
+        - name: OAUTH2_PROXY_CLIENT_ID
+          value: "oauth2-proxy"
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          value: "b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK"
+        #volumeMounts:
+        #  - name: configs
+        #    mountPath: /app/config/proxy-config.cfg
+        #    subPath: proxy-config.cfg
+      #volumes:
+      #- name: configs
+      #  configMap:
+      #    name: oauth2-proxy-config
+      #    items:
+      #      - key: proxy-config.cfg
+      #        path: proxy-config.cfg
 ---
 apiVersion: v1
 kind: Service
