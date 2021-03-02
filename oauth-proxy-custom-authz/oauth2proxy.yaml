@@ -37,10 +37,11 @@ spec:
           - --pass-access-token=true # pass OAuth access_token to upstream via X-Forwarded-Access-Token header. When used with --set-xauthrequest this adds the X-Auth-Request-Access-Token header to the response
           - --upstream=static://200
           - --reverse-proxy
-          - --whitelist-domain=".example.com"
-          - --cookie-domain=".example.com"
+          #- --whitelist-domain=".127.0.0.1.nip.io"
+          - --whitelist-domain=".127.0.0.1.nip.io"
+          - --cookie-domain=".127.0.0.1.nip.io"
           - --cookie-name=_oauth2_proxy
-          #- --cookie-samesite=lax
+          - --cookie-samesite=lax
           #- --scope="openid groups profile email"
           - --provider=oidc
           - --oidc-issuer-url=http://dex.127.0.0.1.nip.io
