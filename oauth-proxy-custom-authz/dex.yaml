@@ -66,8 +66,7 @@ data:
     - id: oauth2-proxy
       redirectURIs:
       # These redirect URIs point to the `--redirect-url` for OAuth2 proxy.
-      - 'http://localhost:4180/oauth2/callback' # For basic proxy example.
-      - 'http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback' # For basic proxy example.
+      - 'http://podinfo.127.0.0.1.nip.io/oauth2/callback'
       name: 'OAuth2 Proxy'
       secret: b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK
 
