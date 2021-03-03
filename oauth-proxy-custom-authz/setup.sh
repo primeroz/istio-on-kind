@@ -8,7 +8,7 @@ kubectl wait -n istio-operator deployment --all --for=condition=available --time
 
 # Create control plane 
 kubectl create ns istio-system
-kubectl ns istio-system
+kubectl get ns istio-system
 cat mesh.yaml| kubectl apply -f -
 
 sleep 30
