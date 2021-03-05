@@ -67,6 +67,7 @@ data:
       redirectURIs:
       # These redirect URIs point to the `--redirect-url` for OAuth2 proxy.
       - 'http://podinfo.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://podinfo.127.0.0.1.nip.io/oauth2/callback'
       name: 'OAuth2 Proxy'
       secret: b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK
 
@@ -145,3 +146,5 @@ spec:
   - route:
     - destination:
         host: dex
+        port:
+          number: 80

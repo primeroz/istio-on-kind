@@ -29,6 +29,18 @@ spec:
     hosts:
     - "oauth2-proxy.127.0.0.1.nip.io"
     - "dex.127.0.0.1.nip.io"
+  - port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: auth-tls-certs
+      mode: SIMPLE
+      privateKey: sds
+      serverCertificate: sds
+    hosts:
+    - "oauth2-proxy.127.0.0.1.nip.io"
+    - "dex.127.0.0.1.nip.io"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -43,6 +55,17 @@ spec:
       number: 80
       name: http
       protocol: HTTP
+    hosts:
+    - "podinfo.127.0.0.1.nip.io"
+  - port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: apps-tls-certs
+      mode: SIMPLE
+      privateKey: sds
+      serverCertificate: sds
     hosts:
     - "podinfo.127.0.0.1.nip.io"
 ---

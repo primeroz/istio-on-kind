@@ -44,7 +44,12 @@ spec:
           - --cookie-samesite=lax
           #- --scope="openid groups profile email"
           - --provider=oidc
-          - --oidc-issuer-url=http://dex.127.0.0.1.nip.io
+          - --login-url=https://dex.127.0.0.1.nip.io/auth # redirect for user - https
+          - --oidc-jwks-url=http://dex.127.0.0.1.nip.io/keys # this is accessed by proxy in-mesh - http
+          - --redeem-url=http://dex.127.0.0.1.nip.io/token # This is accessed by proxy in-mesh - http
+          - --skip-oidc-discovery=true
+          - --oidc-issuer-url=http://dex.127.0.0.1.nip.io # must match the issuer from dex
+          #- --oidc-issuer-url=http://dex.127.0.0.1.nip.io
           # - --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
           - --skip-provider-button=true
         env:

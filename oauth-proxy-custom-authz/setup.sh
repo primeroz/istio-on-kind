@@ -1,6 +1,10 @@
 #!/bin/bash
 
 
+kubectl apply -f cert-manager.yaml
+sleep 10
+kubectl wait -n cert-manager deployment --all --for=condition=available --timeout=180s
+
 kubectl create ns istio-operator
 kubectl apply -f ../operator/1.9.1/operator.yaml
 sleep 10
@@ -8,7 +12,7 @@ kubectl wait -n istio-operator deployment --all --for=condition=available --time
 
 # Create control plane 
 kubectl create ns istio-system
-kubectl get ns istio-system
+kubectl config set-context --current --namespace=istio-system
 cat mesh.yaml| kubectl apply -f -
 
 sleep 30
@@ -16,6 +20,7 @@ kubectl wait -n istio-system deployment --all --for=condition=available --timeou
 sleep 5
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s || exit 1
 
+kubectl apply -f testcerts.yaml
 kubectl apply -f common.yaml
 kubectl apply -f dex.yaml
 kubectl apply -f oauth2proxy.yaml

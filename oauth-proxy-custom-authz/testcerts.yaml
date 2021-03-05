@@ -1,0 +1,42 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-istio
+  namespace: istio-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: auth-tls-certs
+  namespace: istio-system
+spec:
+  subject:
+    organizations:
+      - istio-ingressgateway
+  commonName: 'auth'
+  dnsNames:
+  - 'oauth2-proxy.127.0.0.1.nip.io'
+  - 'dex.127.0.0.1.nip.io'
+  issuerRef:
+    kind: Issuer
+    name: selfsigned-istio
+  secretName: auth-tls-certs
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: apps-tls-certs
+  namespace: istio-system
+spec:
+  subject:
+    organizations:
+      - istio-ingressgateway
+  commonName: 'apps'
+  dnsNames:
+  - 'podinfo.127.0.0.1.nip.io'
+  issuerRef:
+    kind: Issuer
+    name: selfsigned-istio
+  secretName: apps-tls-certs
