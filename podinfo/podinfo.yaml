@@ -130,7 +130,7 @@ spec:
             - podcli
             - check
             - http
-            - localhost:9898/healthz
+            - 127.0.0.1:9898/healthz
           initialDelaySeconds: 5
           timeoutSeconds: 5
         name: backend
@@ -150,7 +150,7 @@ spec:
             - podcli
             - check
             - http
-            - localhost:9898/readyz
+            - 127.0.0.1:9898/readyz
           initialDelaySeconds: 5
           timeoutSeconds: 5
         resources:
@@ -159,7 +159,7 @@ spec:
             memory: 512Mi
           requests:
             cpu: 100m
-            memory: 32Mi
+            memory: 100Mi
 
 ---
 apiVersion: apps/v1
@@ -212,7 +212,7 @@ spec:
             - podcli
             - check
             - http
-            - localhost:9898/healthz
+            - 127.0.0.1:9898/healthz
           initialDelaySeconds: 5
           timeoutSeconds: 5
         name: backend
@@ -232,7 +232,7 @@ spec:
             - podcli
             - check
             - http
-            - localhost:9898/readyz
+            - 127.0.0.1:9898/readyz
           initialDelaySeconds: 5
           timeoutSeconds: 5
         resources:
@@ -241,7 +241,7 @@ spec:
             memory: 512Mi
           requests:
             cpu: 100m
-            memory: 32Mi
+            memory: 100Mi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -289,7 +289,7 @@ spec:
             memory: 128Mi
           requests:
             cpu: 100m
-            memory: 32Mi
+            memory: 100Mi
         volumeMounts:
         - mountPath: /var/lib/redis
           name: data
@@ -351,7 +351,7 @@ spec:
             - podcli
             - check
             - http
-            - localhost:9898/healthz
+            - 127.0.0.1:9898/healthz
           initialDelaySeconds: 5
           timeoutSeconds: 5
         name: frontend
@@ -371,7 +371,7 @@ spec:
             - podcli
             - check
             - http
-            - localhost:9898/readyz
+            - 127.0.0.1:9898/readyz
           initialDelaySeconds: 5
           timeoutSeconds: 5
         resources:
@@ -380,7 +380,7 @@ spec:
             memory: 128Mi
           requests:
             cpu: 100m
-            memory: 32Mi
+            memory: 100Mi
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
