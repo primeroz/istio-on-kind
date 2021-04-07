@@ -1,0 +1,36 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: podinfo-metrics
+  namespace: dev
+spec:
+  hosts:
+  - "podinfo.127.0.0.1.nip.io"
+  gateways:
+  - apps
+  http:
+  - match:
+    - uri:
+        prefix: "/metrics"
+    route:
+    - destination:
+        host: frontend
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: podinfo-status
+  namespace: dev
+spec:
+  hosts:
+  - "podinfo.127.0.0.1.nip.io"
+  gateways:
+  - apps
+  http:
+  - match:
+    - uri:
+        prefix: "/status"
+    route:
+    - destination:
+        host: frontend
