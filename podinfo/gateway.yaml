@@ -1,5 +1,5 @@
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
   name: apps
@@ -26,7 +26,6 @@ spec:
     hosts:
     - "podinfo.127.0.0.1.nip.io"
 ---
----
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -38,6 +37,23 @@ spec:
   gateways:
   - apps
   http:
-  - route:
-    - destination:
-        host: frontend
+  - match:
+      - uri: 
+          prefix: /
+    delegate:
+      name: ingress-frontend  
+      namespace: dev
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: ingress-frontend
+  namespace: dev
+spec:
+  http:
+  - match:
+      - uri: 
+          prefix: /
+    route:
+      - destination:
+          host: frontend
