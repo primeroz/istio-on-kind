@@ -332,6 +332,7 @@ spec:
       labels:
         app: frontend
     spec:
+      serviceAccountName: frontend
       containers:
       - command:
         - ./podinfo

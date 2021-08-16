@@ -14,7 +14,7 @@ VERBOSE=1
 [ "$TRACE" ] && VERBOSE=3
 
 
-KIND_K8S_IMAGE=${KIND_K8S_IMAGE:-"kindest/node:v1.16.15@sha256:c10a63a5bda231c0a379bf91aebf8ad3c79146daca59db816fb963f731852a99"}
+KIND_K8S_IMAGE=${KIND_K8S_IMAGE:-"kindest/node:v1.19.11@sha256:07db187ae84b4b7de440a73886f008cf903fcf5764ba8106a9fd5243d6f32729"}
 KIND_CLUSTER_NAME=${KIND_CLUSTER_NAME:-"istio"}
 KIND_DOCKER_REGISTRY_NAME=${KIND_DOCKER_REGISTRY_NAME:-"kind-docker-registry"}
 KIND_DOCKER_REGISTRY_PORT=${KIND_DOCKER_REGISTRY_PORT:-5000}
@@ -79,7 +79,6 @@ nodes:
   - containerPort: 443
     hostPort: 443
     protocol: TCP
-- role: worker
 - role: worker
 EOF
 

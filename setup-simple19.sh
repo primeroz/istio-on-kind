@@ -7,7 +7,7 @@ source ./env-default.sh
 fi
 
 kubectl create ns istio-operator
-kubectl apply -f operator/1.9.1/operator.yaml
+kubectl apply -f operator/1.9.6/operator.yaml
 sleep 10
 kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
 
@@ -24,6 +24,7 @@ kubectl wait -n istio-system deployment --all --for=condition=available --timeou
 if [[ "x${EXIT_EARLY}" == "xtrue" ]]; then
 exit 0
 fi
+exit 0
 
 #  Demo App
 
