@@ -1,0 +1,47 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ncat-example
+  namespace: default
+spec:
+  hosts:
+  - ncat.example.com
+  - ncat-0.example.com
+  gateways:
+  - istio-system/gateway
+  tls:
+  - match:
+    - port: 9300
+      sniHosts: ["ncat.example.com"]
+    route:
+    - destination:
+        host: ncat
+        port:
+          number: 1234
+  - match:
+    - port: 9300
+      sniHosts: ["ncat-0.example.com"]
+    route:
+    - destination:
+        host: ncat
+        port:
+          number: 1234
+#---
+#apiVersion: networking.istio.io/v1beta1
+#kind: VirtualService
+#metadata:
+#  name: ncat-0-example
+#  namespace: default
+#spec:
+#  hosts:
+#  - ncat-0.example.com
+#  gateways:
+#  - istio-system/gateway
+#  tls:
+#  - match:
+#    - port: 9300
+#    route:
+#    - destination:
+#        host: ncat
+#        port:
+#          number: 1234

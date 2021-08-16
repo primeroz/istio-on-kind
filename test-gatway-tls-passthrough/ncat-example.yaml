@@ -1,0 +1,53 @@
+##################################################################################################
+# ncat service
+##################################################################################################
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ncat
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ncat
+  namespace: default
+  labels:
+    app: ncat
+    service: ncat
+spec:
+  ports:
+  - name: ncat
+    port: 1234
+    targetPort: 1234
+  selector:
+    app: ncat
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ncat
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ncat
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ncat
+        version: v1
+    spec:
+      serviceAccountName: ncat
+      containers:
+      - image: itsthenetwork/alpine-ncat
+        imagePullPolicy: IfNotPresent
+        name: ncat
+        args:
+          - -lvnp
+          - "1234"
+          - --ssl
+        ports:
+        - containerPort: 1234

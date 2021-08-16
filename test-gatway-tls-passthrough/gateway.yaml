@@ -13,3 +13,13 @@ spec:
       protocol: HTTP
     hosts:
     - test.example.com
+  - port:
+      number: 9300
+      name: ncat
+      protocol: TLS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - ncat.example.com
+    - ncat-0.example.com
+    - ncat-1.example.com
