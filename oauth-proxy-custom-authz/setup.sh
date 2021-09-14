@@ -6,7 +6,7 @@ sleep 10
 kubectl wait -n cert-manager deployment --all --for=condition=available --timeout=180s
 
 kubectl create ns istio-operator
-kubectl apply -f ../operator/1.9.1/operator.yaml
+kubectl apply -f ../operator/1.9.8/operator.yaml
 sleep 10
 kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
 

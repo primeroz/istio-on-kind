@@ -7,7 +7,7 @@ source ./env-default.sh
 fi
 
 kubectl create ns istio-operator
-kubectl apply -f operator/1.9.6/operator.yaml
+kubectl apply -f operator/1.9.8/operator.yaml
 sleep 10
 kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
 
@@ -31,23 +31,23 @@ exit 0
 kubectl create ns istio-demo
 kubectl label namespace istio-demo istio-injection=enabled
 kubectl ns istio-demo
-kubectl apply -f bookinfo/bookinfo-kube/bookinfo.yaml
-kubectl wait -n istio-demo deployment --all --for=condition=available --timeout=180s
-
-kubectl apply -f bookinfo/bookinfo-networking/bookinfo-gateway.yaml
-
-kubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml 
-
-
-
-# Observability Stack
-
-kubectl ns istio-system
-kubectl apply -f istio-addons 
-sleep 2
-kubectl apply -f istio-addons 
-kubectl rollout status deployment/kiali -n istio-system
-kubectl apply -f istio-addons/extras/prometheus-configmap.yml
+# jkubectl apply -f bookinfo/bookinfo-kube/bookinfo.yaml
+# jkubectl wait -n istio-demo deployment --all --for=condition=available --timeout=180s
+# j
+# jkubectl apply -f bookinfo/bookinfo-networking/bookinfo-gateway.yaml
+# j
+# jkubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml 
+# j
+# j
+# j
+# j# Observability Stack
+# j
+# jkubectl ns istio-system
+# jkubectl apply -f istio-addons 
+# jsleep 2
+# jkubectl apply -f istio-addons 
+# jkubectl rollout status deployment/kiali -n istio-system
+# jkubectl apply -f istio-addons/extras/prometheus-configmap.yml
 
 #kubectl apply -f istio/samples/addons/extras/zipkin.yaml
 #kubectl rollout status deployment/zipkin -n istio-system
