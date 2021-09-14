@@ -4,7 +4,7 @@ kind: Service
 metadata:
   labels:
     env: dev
-  name: frontend
+  name: podinfo1
   namespace: dev
 spec:
   ports:
@@ -13,7 +13,7 @@ spec:
     protocol: TCP
     targetPort: http
   selector:
-    app: frontend
+    app: podinfo1
   type: ClusterIP
 ---
 apiVersion: apps/v1
@@ -22,7 +22,7 @@ metadata:
   labels:
     env: dev
     instance: webapp
-  name: frontend
+  name: podinfo1
   namespace: dev
 spec:
   minReadySeconds: 3
@@ -30,7 +30,7 @@ spec:
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      app: frontend
+      app: podinfo1
   strategy:
     rollingUpdate:
       maxUnavailable: 0
@@ -41,7 +41,7 @@ spec:
         prometheus.io/port: "9797"
         prometheus.io/scrape: "true"
       labels:
-        app: frontend
+        app: podinfo1
     spec:
       containers:
       - command:
@@ -63,7 +63,7 @@ spec:
             - localhost:9898/healthz
           initialDelaySeconds: 5
           timeoutSeconds: 5
-        name: frontend
+        name: podinfo1
         ports:
         - containerPort: 9898
           name: http
@@ -94,35 +94,35 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: podinfo
+  name: podinfo1
   namespace: dev
 spec:
   hosts:
-  - "podinfo.127.0.0.1.nip.io"
+  - "podinfo1.127.0.0.1.nip.io"
   gateways:
   - apps
   http:
   - route:
     - destination:
-        host: frontend
----
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: podinfo
-  #namespace: dev
-  # Does it need to be in the ingrassgateway namespace?
-  namespace: istio-system
-spec:
-  selector:
-    matchLabels:
-      app: istio-ingressgateway
-  action: CUSTOM
-  provider:
-    name: "oauth2-proxy"
-  rules:
-    - to:
-      - operation:
-          hosts:
-          - "podinfo.127.0.0.1.nip.io"
-          
+        host: podinfo1
+#---
+#apiVersion: security.istio.io/v1beta1
+#kind: AuthorizationPolicy
+#metadata:
+#  name: podinfo
+#  #namespace: dev
+#  # Does it need to be in the ingrassgateway namespace?
+#  namespace: istio-system
+#spec:
+#  selector:
+#    matchLabels:
+#      app: istio-ingressgateway
+#  action: CUSTOM
+#  provider:
+#    name: "oauth2-proxy"
+#  rules:
+#    - to:
+#      - operation:
+#          hosts:
+#          - "podinfo.127.0.0.1.nip.io"
+#          

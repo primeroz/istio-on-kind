@@ -35,7 +35,8 @@ spec:
       - istio-ingressgateway
   commonName: 'apps'
   dnsNames:
-  - 'podinfo.127.0.0.1.nip.io'
+  - 'podinfo1.127.0.0.1.nip.io'
+  - 'podinfo2.127.0.0.1.nip.io'
   issuerRef:
     kind: Issuer
     name: selfsigned-istio

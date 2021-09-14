@@ -106,9 +106,24 @@ spec:
             - "x-forwarded-host"
             - "from"
             - "x-forwarded-for"
+            - "x-forwarded-uri"
+            - "x-auth-request-redirect"
             - "accept"
-        headersToUpstreamOnAllow: ["authorization", "path", "x-auth-request-user", "x-auth-request-email", "x-auth-request-access-token", "x-auth-request-user-groups"] # headers sent to backend application when request is allowed.
-        headersToDownstreamOnDeny: ["content-type", "set-cookie"] # headers sent back to the client when request is denied.
+        headersToUpstreamOnAllow: 
+          # headers sent to backend application when request is allowed.
+          - "authorization"
+          - "path"
+          - "cookie"
+          - "x-auth-request-user"
+          - "x-auth-request-email"
+          - "x-auth-request-access-token"
+          - "x-auth-request-user-groups"
+        headersToDownstreamOnDeny: 
+          # headers sent back to the client when request is denied.
+          - "content-type"
+          - "set-cookie"
+        #includeAdditionalHeadersInCheck:
+        #  X-Auth-Request-Redirect: '%REQ(x-forwarded-proto)%://%REQ(:authority)%%REQ(:path)%'
         #path_prefix: "/oauth2/auth"
   profile: default
   values:

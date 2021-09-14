@@ -17,7 +17,7 @@ spec:
     spec:
       serviceAccountName: dex # This is created below
       containers:
-      - image: dexidp/dex:v2.27.0 #or quay.io/dexidp/dex:v2.26.0
+      - image: dexidp/dex:v2.30.0 #or quay.io/dexidp/dex:v2.26.0
         name: dex
         command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
 
@@ -66,8 +66,10 @@ data:
     - id: oauth2-proxy
       redirectURIs:
       # These redirect URIs point to the `--redirect-url` for OAuth2 proxy.
-      - 'http://podinfo.127.0.0.1.nip.io/oauth2/callback'
-      - 'https://podinfo.127.0.0.1.nip.io/oauth2/callback'
+      - 'http://podinfo1.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://podinfo1.127.0.0.1.nip.io/oauth2/callback'
+      #- 'http://podinfo2.127.0.0.1.nip.io/oauth2/callback'
+      #- 'https://podinfo2.127.0.0.1.nip.io/oauth2/callback'
       name: 'OAuth2 Proxy'
       secret: b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK
 

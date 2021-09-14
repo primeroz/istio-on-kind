@@ -25,7 +25,8 @@ kubectl apply -f common.yaml
 kubectl apply -f dex.yaml
 kubectl apply -f oauth2proxy.yaml
 kubectl wait -n dex deployment --all --for=condition=available --timeout=180s || exit 1
-kubectl apply -f deployment.yaml
+kubectl apply -f podinfo1.yaml
+kubectl apply -f podinfo2.yaml
 kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || exit 1
 
 # Test

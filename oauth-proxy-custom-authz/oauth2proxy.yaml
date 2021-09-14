@@ -20,7 +20,7 @@ spec:
         - dex.127.0.0.1.nip.io
       containers:
       - name: oauth-proxy
-        image: quay.io/oauth2-proxy/oauth2-proxy:v7.0.1
+        image: quay.io/oauth2-proxy/oauth2-proxy:v7.1.3
         ports:
           - name: oauth2-proxy
             containerPort: 4180
@@ -37,19 +37,18 @@ spec:
           - --pass-access-token=true # pass OAuth access_token to upstream via X-Forwarded-Access-Token header. When used with --set-xauthrequest this adds the X-Auth-Request-Access-Token header to the response
           - --upstream=static://200
           - --reverse-proxy
-          #- --whitelist-domain=".127.0.0.1.nip.io"
           - --whitelist-domain=".127.0.0.1.nip.io"
           - --cookie-domain=".127.0.0.1.nip.io"
           - --cookie-name=_oauth2_proxy
-          - --cookie-samesite=lax
+          #- --cookie-samesite=lax
           #- --scope="openid groups profile email"
           - --provider=oidc
           - --login-url=https://dex.127.0.0.1.nip.io/auth # redirect for user - https
+          #- --logout-url
           - --oidc-jwks-url=http://dex.127.0.0.1.nip.io/keys # this is accessed by proxy in-mesh - http
           - --redeem-url=http://dex.127.0.0.1.nip.io/token # This is accessed by proxy in-mesh - http
           - --skip-oidc-discovery=true
           - --oidc-issuer-url=http://dex.127.0.0.1.nip.io # must match the issuer from dex
-          #- --oidc-issuer-url=http://dex.127.0.0.1.nip.io
           # - --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
           - --skip-provider-button=true
         env:
