@@ -37,6 +37,7 @@ spec:
   dnsNames:
   - 'podinfo1.127.0.0.1.nip.io'
   - 'podinfo2.127.0.0.1.nip.io'
+  - 'podinfo3.127.0.0.1.nip.io'
   issuerRef:
     kind: Issuer
     name: selfsigned-istio
