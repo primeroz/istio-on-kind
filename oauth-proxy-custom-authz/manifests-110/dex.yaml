@@ -1,0 +1,156 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dex
+  name: dex
+  namespace: dex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      serviceAccountName: dex # This is created below
+      containers:
+      - image: dexidp/dex:v2.30.0 #or quay.io/dexidp/dex:v2.26.0
+        name: dex
+        command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+
+        ports:
+        - name: http
+          containerPort: 5556
+
+        volumeMounts:
+        - name: config
+          mountPath: /etc/dex/cfg
+
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5556
+      volumes:
+      - name: config
+        configMap:
+          name: dex
+          items:
+          - key: config.yaml
+            path: config.yaml
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dex
+  namespace: dex
+data:
+  config.yaml: |
+    issuer: http://dex.127.0.0.1.nip.io
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      http: 0.0.0.0:5556
+    oauth2:
+      skipApprovalScreen: true
+
+    expiry:
+      signingKeys: "4h"
+      idTokens: "1h"
+
+    staticClients:
+    - id: oauth2-proxy
+      redirectURIs:
+      # These redirect URIs point to the `--redirect-url` for OAuth2 proxy.
+      - 'http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
+      #- 'http://podinfo1.127.0.0.1.nip.io/oauth2/callback'
+      #- 'https://podinfo1.127.0.0.1.nip.io/oauth2/callback'
+      #- 'http://podinfo2.127.0.0.1.nip.io/oauth2/callback'
+      #- 'https://podinfo2.127.0.0.1.nip.io/oauth2/callback'
+      #- 'http://podinfo3.127.0.0.1.nip.io/oauth2/callback'
+      #- 'https://podinfo3.127.0.0.1.nip.io/oauth2/callback'
+      name: 'OAuth2 Proxy'
+      secret: b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK
+
+    enablePasswordDB: true
+    staticPasswords:
+    - email: "admin@example.com"
+      # bcrypt hash of the string "password"
+      hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+      username: "admin"
+      userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  namespace: dex
+spec:
+  type: ClusterIP
+  clusterIP: 10.96.201.215
+  ports:
+  - name: http-dex
+    port: 5556
+    protocol: TCP
+    targetPort: 5556
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 5556
+  selector:
+    app: dex
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: dex
+  name: dex
+  namespace: dex
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dex
+rules:
+- apiGroups: ["dex.coreos.com"] # API group created by dex
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["create"] # To manage its own resources, dex must be able to create customresourcedefinitions
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dex
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dex
+subjects:
+- kind: ServiceAccount
+  name: dex           # Service account assigned to the dex pod, created above
+  namespace: dex  # The namespace dex is running in
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: dex
+  namespace: dex
+spec:
+  hosts:
+  - "dex.127.0.0.1.nip.io"
+  gateways:
+  - auth
+  http:
+  - route:
+    - destination:
+        host: dex
+        port:
+          number: 80

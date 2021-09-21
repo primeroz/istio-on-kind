@@ -49,7 +49,7 @@ spec:
           - --redeem-url=http://dex.127.0.0.1.nip.io/token # This is accessed by proxy in-mesh - http
           - --skip-oidc-discovery=true
           - --oidc-issuer-url=http://dex.127.0.0.1.nip.io # must match the issuer from dex
-          # - --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
+          - --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback
           - --skip-provider-button=true
         env:
         - name: OAUTH2_PROXY_COOKIE_SECRET

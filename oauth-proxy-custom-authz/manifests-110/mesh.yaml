@@ -1,0 +1,144 @@
+---
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: standard
+  namespace: istio-system
+spec:
+  components:
+    egressGateways:
+    - enabled: true
+      k8s:
+        hpaSpec:
+          minReplicas: 1
+        podDisruptionBudget:
+          minAvailable: 1
+          selector:
+            matchLabels:
+              app: istio-egressgateway
+              istio: egressgateway-public
+      label:
+        app: istio-egressgateway
+        istio: egressgateway-public
+      name: public-egress
+      namespace: istio-system
+    ingressGateways:
+    - enabled: false
+      name: istio-ingressgateway
+      namespace: istio-system
+    - enabled: true
+      k8s:
+        nodeSelector:
+          "ingress-ready": "true"
+        tolerations: 
+          - key: "node-role.kubernetes.io/master"
+            operator: "Equal"
+            effect: "NoSchedule"
+        hpaSpec:
+          maxReplicas: 3
+          minReplicas: 2
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: 'kubernetes.io/hostname'
+                labelSelector:
+                  matchLabels:
+                    app: istio-ingressgateway
+                    istio: ingressgateway-public
+        podDisruptionBudget:
+          minAvailable: 1
+          selector:
+            matchLabels:
+              app: istio-ingressgateway
+              istio: ingressgateway-public
+        service:
+          type: NodePort
+          ports:
+          - name: http
+            port: 80
+            nodePort: 32080
+            targetPort: 8080
+          - name: https
+            port: 443
+            nodePort: 32443
+            targetPort: 8443
+      label:
+        app: istio-ingressgateway
+        istio: ingressgateway-public
+      name: public-ingress
+      namespace: istio-system
+    pilot:
+      enabled: true
+      k8s:
+        hpaSpec:
+          maxReplicas: 3
+          minReplicas: 2
+  meshConfig:
+    trustDomain: cluster.local
+    accessLogFile: /dev/stdout
+    connectTimeout: 5s
+    defaultConfig:
+      sds:
+        enabled: true
+      tracing:
+        zipkin:
+          address: zipkin.istio-system:9411
+    enableTracing: false
+    ingressClass: istio
+    trustDomain: cluster.local
+    extensionProviders: 
+    - name: "oauth2-proxy"
+      envoyExtAuthzHttp:
+        service: "oauth2-proxy.dex.svc.cluster.local"
+        port: "4180" # The default port used by oauth2-proxy.
+        #includeHeadersInCheck: ["authorization", "cookie"]  # headers sent to the oauth2-proxy in the check request.
+        includeHeadersInCheck: # headers sent to the oauth2-proxy in the check request.
+            # https://github.com/oauth2-proxy/oauth2-proxy/issues/350#issuecomment-576949334
+            - "cookie"
+            - "x-forwarded-access-token"
+            - "x-forwarded-user"
+            - "x-forwarded-email"
+            - "authorization"
+            - "x-forwarded-proto"
+            - "proxy-authorization"
+            - "user-agent"
+            - "x-forwarded-host"
+            - "from"
+            - "x-forwarded-for"
+            - "x-forwarded-uri"
+            - "x-auth-request-redirect"
+            - "accept"
+        includeAdditionalHeadersInCheck:
+          X-Auth-Request-Redirect: '%REQ(x-forwarded-proto)%://%REQ(:authority)%%REQ(:path)%'
+        headersToUpstreamOnAllow: 
+          # headers sent to backend application when request is allowed.
+          - "authorization"
+          - "path"
+          - "cookie"
+          - "x-auth-request-user"
+          - "x-auth-request-email"
+          - "x-auth-request-access-token"
+          - "x-auth-request-user-groups"
+        headersToDownstreamOnDeny: 
+          # headers sent back to the client when request is denied.
+          - "content-type"
+          - "set-cookie"
+        #path_prefix: "/oauth2/auth"
+  profile: default
+  values:
+    pilot:
+      env:
+        PILOT_ENABLE_EDS_FOR_HEADLESS_SERVICES: false
+        PILOT_ENABLE_HEADLESS_SERVICE_POD_LISTENERS: true
+        PILOT_ENABLE_STATUS: true 
+        PILOT_JWT_PUB_KEY_REFRESH_INTERVAL: "5m"
+    global:
+      istiod:
+        enableAnalysis: true
+      tracer:
+        zipkin:
+          address: zipkin.istio-system:9411
+      proxy:
+        clusterDomain: cluster.local

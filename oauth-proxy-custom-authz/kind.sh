@@ -69,7 +69,7 @@ nodes:
   - containerPort: 32443
     hostPort: 443
     protocol: TCP
-- role: worker
+#- role: worker
 EOF
 
 

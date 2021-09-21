@@ -1,34 +1,69 @@
 #!/bin/bash
 
+source /opt/asdf-vm/asdf.sh
+source ./common
 
-kubectl apply -f cert-manager.yaml
+ISTIOVERSION=${1:-"1.9"}
+ISTIOASDF=""
+MANIFESTSVERSIONEDDIR=""
+MANIFESTSCOMMONDIR="./manifests-common"
+
+# Check we are in the right CONTEXT
+if [[ "x$(kubectl config current-context)" != "xkind-oauth" ]]; then
+  e_error "Wrong context , you need to be in kind-oauth"
+  exit 1
+fi
+
+if [[ "${ISTIOVERSION}" == "1.9" ]]; then
+  ISTIOASDF="1.9.8"
+  MANIFESTSVERSIONEDDIR="./manifests-19"
+  e_arrow "Using Istio ${ISTIOASDF}"
+elif [[ "${ISTIOVERSION}" == "1.10" ]]; then
+  ISTIOASDF="1.10.4"
+  MANIFESTSVERSIONEDDIR="./manifests-110"
+  e_arrow "Using Istio ${ISTIOASDF}"
+else
+  die "Wrong version of istio selected, only 1.9 and 1.10 supported"
+fi
+sleep 10
+
+e_header "Setting UP Cert-Manager"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/cert-manager.yaml"
 sleep 10
 kubectl wait -n cert-manager deployment --all --for=condition=available --timeout=180s
 
+e_header "Setting UP Istio version ${ISTIOASDF}"
 kubectl create ns istio-operator
-kubectl apply -f ../operator/1.9.8/operator.yaml
+set -e
+asdf shell istioctl ${ISTIOASDF}
+istioctl operator dump | kubectl apply -f -
 sleep 10
-kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s
+kubectl wait -n istio-operator deployment --all --for=condition=available --timeout=180s || die "something went wrong"
+e_success "Completed"
+set +e
 
-# Create control plane 
+
+e_header "Creating Istio Control Plane"
 kubectl create ns istio-system
 kubectl config set-context --current --namespace=istio-system
-cat mesh.yaml| kubectl apply -f -
+cat "${MANIFESTSVERSIONEDDIR}/mesh.yaml"| kubectl apply -f -
 
 sleep 30
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s
 sleep 5
-kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s || exit 1
+kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s || die "something went wrong"
+e_success "Completed"
 
-kubectl apply -f testcerts.yaml
-kubectl apply -f common.yaml
-kubectl apply -f dex.yaml
-kubectl apply -f oauth2proxy.yaml
-kubectl wait -n dex deployment --all --for=condition=available --timeout=180s || exit 1
-kubectl apply -f podinfo1.yaml
-kubectl apply -f podinfo2.yaml
-kubectl apply -f podinfo3.yaml
-kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || exit 1
+e_header "Creating Test setup"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/testcerts.yaml"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/common.yaml"
+kubectl apply -f "${MANIFESTSVERSIONEDDIR}/dex.yaml"
+kubectl apply -f "${MANIFESTSVERSIONEDDIR}/oauth2proxy.yaml"
+kubectl wait -n dex deployment --all --for=condition=available --timeout=180s || die "something went wrong"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo1.yaml"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo2.yaml"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo3.yaml"
+kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || die "something went wrong"
 
 # Test
 echo "Testing DEX"
