@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    env: dev
+  name: dexui
+  namespace: dex
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: dexui
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    env: dev
+    instance: webapp
+  name: dexui
+  namespace: dex
+spec:
+  minReadySeconds: 3
+  progressDeadlineSeconds: 60
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: dexui
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: dexui
+    spec:
+      hostAliases:
+      - ip: 10.96.201.215
+        hostnames:
+        - dex.127.0.0.1.nip.io
+      containers:
+      - args:
+        - --client-id
+        - dexui
+        - --client-secret
+        - b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK
+        - --issuer
+        - http://dex.127.0.0.1.nip.io
+        - --listen
+        - http://0.0.0.0:5555
+        - --redirect-uri
+        - http://dexui.127.0.0.1.nip.io/callback
+        image: quay.io/influxdb/dex-client-ui:0.0.1-1
+        name: dexui
+        ports:
+        - containerPort: 5555
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 32Mi
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: dexui
+  namespace: dex
+spec:
+  hosts:
+  - "dexui.127.0.0.1.nip.io"
+  gateways:
+  - auth
+  http:
+  - route:
+    - destination:
+        host: dexui

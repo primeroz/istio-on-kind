@@ -52,6 +52,7 @@ spec:
           #- --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback # Can't do single redirect on 1.9 using the injected header
           - --skip-provider-button=true
           - --skip-jwt-bearer-tokens=true # will skip requests that have verified JWT bearer tokens (the token must have aud that matches this client id or defined in extra-jwt-issuer )
+          #- --extra-jwt-issuers="http://dex.127.0.0.1.nip.io=dexui" does not work when same issue with different AUD
           #- --allowed-group=engineering
           #- --allowed-group=it
         env:

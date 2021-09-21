@@ -140,3 +140,4 @@ spec:
     jwksUri: http://dex.dex/keys
     audiences:
       - oauth2-proxy
+      - dexui

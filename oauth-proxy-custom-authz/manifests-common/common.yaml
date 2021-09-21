@@ -29,6 +29,7 @@ spec:
     hosts:
     - "oauth2-proxy.127.0.0.1.nip.io"
     - "dex.127.0.0.1.nip.io"
+    - "dexui.127.0.0.1.nip.io"
   - port:
       name: https
       number: 443
@@ -41,6 +42,7 @@ spec:
     hosts:
     - "oauth2-proxy.127.0.0.1.nip.io"
     - "dex.127.0.0.1.nip.io"
+    - "dexui.127.0.0.1.nip.io"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -59,7 +61,6 @@ spec:
     - "podinfo1.127.0.0.1.nip.io"
     - "podinfo2.127.0.0.1.nip.io"
     - "podinfo3.127.0.0.1.nip.io"
-    - "podinfo4.127.0.0.1.nip.io"
   - port:
       name: https
       number: 443
@@ -73,7 +74,6 @@ spec:
     - "podinfo1.127.0.0.1.nip.io"
     - "podinfo2.127.0.0.1.nip.io"
     - "podinfo3.127.0.0.1.nip.io"
-    - "podinfo4.127.0.0.1.nip.io"
 ---
 ## Define the service entry for the local OPA service on port 9191.
 #apiVersion: networking.istio.io/v1alpha3

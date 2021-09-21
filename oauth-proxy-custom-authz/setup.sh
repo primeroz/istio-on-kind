@@ -58,12 +58,12 @@ e_header "Creating Test setup"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/testcerts.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/common.yaml"
 kubectl apply -f "${MANIFESTSVERSIONEDDIR}/dex.yaml"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/dex-ui.yaml"
 kubectl apply -f "${MANIFESTSVERSIONEDDIR}/oauth2proxy.yaml"
 kubectl wait -n dex deployment --all --for=condition=available --timeout=180s || die "something went wrong"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo1.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo2.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo3.yaml"
-kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo4.yaml"
 kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || die "something went wrong"
 
 # Test
