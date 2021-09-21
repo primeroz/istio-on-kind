@@ -65,9 +65,8 @@ data:
     staticClients:
     - id: oauth2-proxy
       redirectURIs:
-      # These redirect URIs point to the `--redirect-url` for OAuth2 proxy.
-      #- 'http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
-      #- 'https://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
+      - 'http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
       - 'http://podinfo1.127.0.0.1.nip.io/oauth2/callback'
       - 'https://podinfo1.127.0.0.1.nip.io/oauth2/callback'
       - 'http://podinfo2.127.0.0.1.nip.io/oauth2/callback'
