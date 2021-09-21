@@ -70,10 +70,12 @@ data:
       #- 'https://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback'
       - 'http://podinfo1.127.0.0.1.nip.io/oauth2/callback'
       - 'https://podinfo1.127.0.0.1.nip.io/oauth2/callback'
-      #- 'http://podinfo2.127.0.0.1.nip.io/oauth2/callback'
-      #- 'https://podinfo2.127.0.0.1.nip.io/oauth2/callback'
-      #- 'http://podinfo3.127.0.0.1.nip.io/oauth2/callback'
-      #- 'https://podinfo3.127.0.0.1.nip.io/oauth2/callback'
+      - 'http://podinfo2.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://podinfo2.127.0.0.1.nip.io/oauth2/callback'
+      - 'http://podinfo3.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://podinfo3.127.0.0.1.nip.io/oauth2/callback'
+      - 'http://podinfo4.127.0.0.1.nip.io/oauth2/callback'
+      - 'https://podinfo4.127.0.0.1.nip.io/oauth2/callback'
       name: 'OAuth2 Proxy'
       secret: b2F1dGgyLXByb3h5LWNsaWVudC1zZWNyZXQK
 

@@ -63,6 +63,7 @@ kubectl wait -n dex deployment --all --for=condition=available --timeout=180s ||
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo1.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo2.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo3.yaml"
+kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo4.yaml"
 kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || die "something went wrong"
 
 # Test
