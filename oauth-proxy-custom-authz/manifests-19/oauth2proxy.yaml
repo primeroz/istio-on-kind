@@ -51,7 +51,9 @@ spec:
           - --oidc-issuer-url=http://dex.127.0.0.1.nip.io # must match the issuer from dex
           #- --redirect-url=http://oauth2-proxy.127.0.0.1.nip.io/oauth2/callback # Can't do single redirect on 1.9 using the injected header
           - --skip-provider-button=true
-          - --skip-jwt-bearer-token=true # will skip requests that have verified JWT bearer tokens (the token must have aud that matches this client id or defined in extra-jwt-issuer )
+          - --skip-jwt-bearer-tokens=true # will skip requests that have verified JWT bearer tokens (the token must have aud that matches this client id or defined in extra-jwt-issuer )
+          #- --allowed-group=engineering
+          #- --allowed-group=it
         env:
         - name: OAUTH2_PROXY_COOKIE_SECRET
           value: "eTh1TmFXRjc1TVVYejZBOVFXZFlYQT09"
