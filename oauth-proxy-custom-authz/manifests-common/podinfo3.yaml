@@ -105,7 +105,7 @@ spec:
   - route:
     - destination:
         host: podinfo3
-#---
+---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
