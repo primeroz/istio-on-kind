@@ -125,7 +125,7 @@ spec:
           # headers sent back to the client when request is denied.
           - "content-type"
           - "set-cookie"
-        #path_prefix: "/oauth2/auth"
+        pathPrefix: "/oauth2/auth"
   profile: default
   values:
     pilot:
