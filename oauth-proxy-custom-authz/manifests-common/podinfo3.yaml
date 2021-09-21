@@ -106,23 +106,37 @@ spec:
     - destination:
         host: podinfo3
 #---
-#apiVersion: security.istio.io/v1beta1
-#kind: AuthorizationPolicy
-#metadata:
-#  name: podinfo
-#  #namespace: dev
-#  # Does it need to be in the ingrassgateway namespace?
-#  namespace: istio-system
-#spec:
-#  selector:
-#    matchLabels:
-#      app: istio-ingressgateway
-#  action: CUSTOM
-#  provider:
-#    name: "oauth2-proxy"
-#  rules:
-#    - to:
-#      - operation:
-#          hosts:
-#          - "podinfo.127.0.0.1.nip.io"
-#          
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: podinfo3
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: podinfo3
+  action: "ALLOW"
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["http://dex.127.0.0.1.nip.io/*"]  
+    when:
+    - key: request.auth.claims[email]
+      values: ["admin@example.com"]
+    #- key: request.auth.claims[groups]
+    #  values: ["group1"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: podinfo3
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: podinfo3
+  jwtRules:
+  - issuer: "http://dex.127.0.0.1.nip.io"
+    jwksUri: http://dex.dex/keys
+    audiences:
+      - oauth2-proxy
