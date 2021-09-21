@@ -105,24 +105,24 @@ spec:
   - route:
     - destination:
         host: podinfo2
-#---
-#apiVersion: security.istio.io/v1beta1
-#kind: AuthorizationPolicy
-#metadata:
-#  name: podinfo
-#  #namespace: dev
-#  # Does it need to be in the ingrassgateway namespace?
-#  namespace: istio-system
-#spec:
-#  selector:
-#    matchLabels:
-#      app: istio-ingressgateway
-#  action: CUSTOM
-#  provider:
-#    name: "oauth2-proxy"
-#  rules:
-#    - to:
-#      - operation:
-#          hosts:
-#          - "podinfo.127.0.0.1.nip.io"
-#          
+---
+# This is applied to the podinfo2 pod directly instead of the ingress
+# Try with only FROM ingress gateway - not currently support at least in 1.10
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: podinfo2
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: podinfo2
+  action: CUSTOM
+  provider:
+    name: "oauth2-proxy"
+  rules:
+    - to:
+      - operation:
+          paths: [ "/" ]
+
+          
