@@ -22,8 +22,12 @@ elif [[ "${ISTIOVERSION}" == "1.10" ]]; then
   ISTIOASDF="1.10.4"
   MANIFESTSVERSIONEDDIR="./manifests-110"
   e_arrow "Using Istio ${ISTIOASDF}"
+elif [[ "${ISTIOVERSION}" == "1.8" ]]; then
+  ISTIOASDF="1.8.6"
+  MANIFESTSVERSIONEDDIR="./manifests-18"
+  e_arrow "Using Istio ${ISTIOASDF}"
 else
-  die "Wrong version of istio selected, only 1.9 and 1.10 supported"
+  die "Wrong version of istio selected, only 1.8, 1.9 and 1.10 supported"
 fi
 sleep 10
 
@@ -61,8 +65,8 @@ kubectl apply -f "${MANIFESTSVERSIONEDDIR}/dex.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/dex-ui.yaml"
 kubectl apply -f "${MANIFESTSVERSIONEDDIR}/oauth2proxy.yaml"
 kubectl wait -n dex deployment --all --for=condition=available --timeout=180s || die "something went wrong"
-kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo1.yaml"
-kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo2.yaml"
+[[ "x${ISTIOVERSION}" != "x1.8" ]] && kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo1.yaml"
+[[ "x${ISTIOVERSION}" != "x1.8" ]] && kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo2.yaml"
 kubectl apply -f "${MANIFESTSCOMMONDIR}/podinfo3.yaml"
 kubectl wait -n dev deployment --all --for=condition=available --timeout=180s || die "something went wrong"
 
