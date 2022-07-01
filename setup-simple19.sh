@@ -31,12 +31,12 @@ exit 0
 kubectl create ns istio-demo
 kubectl label namespace istio-demo istio-injection=enabled
 kubectl ns istio-demo
-# jkubectl apply -f bookinfo/bookinfo-kube/bookinfo.yaml
-# jkubectl wait -n istio-demo deployment --all --for=condition=available --timeout=180s
-# j
-# jkubectl apply -f bookinfo/bookinfo-networking/bookinfo-gateway.yaml
-# j
-# jkubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml 
+kubectl apply -f bookinfo/bookinfo-kube/bookinfo.yaml
+kubectl wait -n istio-demo deployment --all --for=condition=available --timeout=180s
+
+kubectl apply -f bookinfo/bookinfo-networking/bookinfo-gateway.yaml
+
+kubectl apply -f bookinfo/bookinfo-networking/destination-rule-all-mtls.yaml 
 # j
 # j
 # j
