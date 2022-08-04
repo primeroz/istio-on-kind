@@ -1,0 +1,95 @@
+---
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: standard
+  namespace: istio-system
+spec:
+  components:
+    egressGateways:
+    - enabled: true
+      k8s:
+        hpaSpec:
+          minReplicas: 1
+        podDisruptionBudget:
+          minAvailable: 1
+          selector:
+            matchLabels:
+              app: istio-egressgateway
+              istio: egressgateway-public
+      label:
+        app: istio-egressgateway
+        istio: egressgateway-public
+      name: public-egress
+      namespace: istio-system
+    ingressGateways:
+    - enabled: false
+      name: istio-ingressgateway
+      namespace: istio-system
+    - enabled: true
+      k8s:
+        hpaSpec:
+          maxReplicas: 3
+          minReplicas: 2
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: 'kubernetes.io/hostname'
+                labelSelector:
+                  matchLabels:
+                    app: istio-ingressgateway
+                    istio: ingressgateway-public
+        podDisruptionBudget:
+          minAvailable: 1
+          selector:
+            matchLabels:
+              app: istio-ingressgateway
+              istio: ingressgateway-public
+        service:
+          ports:
+          - name: http
+            port: 80
+            targetPort: 8080
+          - name: https
+            port: 443
+            targetPort: 8443
+      label:
+        app: istio-ingressgateway
+        istio: ingressgateway-public
+      name: public-ingress
+      namespace: istio-system
+    pilot:
+      enabled: true
+      k8s:
+        hpaSpec:
+          maxReplicas: 3
+          minReplicas: 2
+  meshConfig:
+    accessLogFile: /dev/stdout
+    connectTimeout: 5s
+    defaultConfig:
+      sds:
+        enabled: true
+      tracing:
+        zipkin:
+          address: zipkin.istio-system:9411
+    enableTracing: false
+    ingressClass: istio
+    trustDomain: ${CLUSTER_DNS_DOMAIN}
+  profile: default
+  values:
+    pilot:
+      env:
+        PILOT_ENABLE_EDS_FOR_HEADLESS_SERVICES: false
+        PILOT_ENABLE_HEADLESS_SERVICE_POD_LISTENERS: true
+        PILOT_ENABLE_STATUS: true 
+    global:
+      istiod:
+        enableAnalysis: true
+      tracer:
+        zipkin:
+          address: zipkin.istio-system:9411
+      proxy:
+        clusterDomain: ${CLUSTER_DNS_DOMAIN}

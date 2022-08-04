@@ -14,7 +14,7 @@ kubectl wait -n istio-operator deployment --all --for=condition=available --time
 # Create control plane 
 kubectl create ns istio-system
 kubectl ns istio-system
-CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.7.8/crd.yaml | kubectl apply -f -
+CLUSTER_DNS_DOMAIN=${CLUSTER_DNS_DOMAIN} envsubst < operator/1.10.6/crd.yaml | kubectl apply -f -
 
 sleep 30
 kubectl wait -n istio-system deployment --all --for=condition=available --timeout=180s
